@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pawbie Eye Demo - 图层版</title>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #2d3436 0%, #000000 100%);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    
+    /* 左侧：画布区域 */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .title {
+      color: white;
+      font-size: 22px;
+      margin-bottom: 16px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    #canvas-container {
+      background: #fff5f5;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .emotion-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .emotion-buttons button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      color: white;
+    }
+    .emotion-buttons button:hover {
+      transform: translateY(-2px);
+    }
+    .btn-neutral { background: #6c757d; }
+    .btn-happy { background: #ffc107; color: #333; }
+    .btn-sad { background: #17a2b8; }
+    .btn-angry { background: #dc3545; }
+    .btn-surprised { background: #9c27b0; }
+    .btn-sleepy { background: #607d8b; }
+    .btn-love { background: #e91e63; }
+    .btn-happyl { background: #ff9800; color: #333; }
+    
+    /* 右侧：参数面板 */
+    .param-panel {
+      width: 320px;
+      background: #1a1a1a;
+      padding: 20px;
+      overflow-y: auto;
+      border-left: 1px solid #333;
+    }
+    .panel-title {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #333;
+    }
+    .param-group {
+      margin-bottom: 20px;
+    }
+    .param-group h4 {
+      color: #888;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .param-item {
+      margin-bottom: 14px;
+    }
+    .param-item label {
+      display: flex;
+      justify-content: space-between;
+      color: #ccc;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .param-item label span {
+      color: #4ecdc4;
+      font-family: monospace;
+    }
+    .param-item input[type="range"] {
+      width: 100%;
+      height: 6px;
+      -webkit-appearance: none;
+      background: #333;
+      border-radius: 3px;
+      outline: none;
+    }
+    .param-item input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: #4ecdc4;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .param-item input[type="range"]::-webkit-slider-thumb:hover {
+      background: #45b7aa;
+    }
+    .param-item input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    .checkbox-label {
+      color: #ccc;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .action-buttons button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-export {
+      background: #4ecdc4;
+      color: #000;
+    }
+    .btn-reset {
+      background: #444;
+      color: #fff;
+    }
+    .btn-blink {
+      background: #ff6b6b;
+      color: #fff;
+    }
+    .action-buttons button:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    
+    .pupil-btn {
+      padding: 6px 12px;
+      border: 1px solid #444;
+      border-radius: 4px;
+      background: #2a2a2a;
+      color: #ccc;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .pupil-btn:hover {
+      background: #3a3a3a;
+    }
+    .pupil-btn.active {
+      background: #4ecdc4;
+      color: #000;
+      border-color: #4ecdc4;
+    }
+    
+    .output-area {
+      margin-top: 16px;
+      background: #0d0d0d;
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .output-area h4 {
+      color: #888;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .output-area pre {
+      color: #4ecdc4;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 10px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- 左侧画布区域 -->
+  <div class="main-area">
+    <h1 class="title">🐾 Pawbie Eye Demo</h1>
+    <div id="canvas-container"></div>
+    <div class="emotion-buttons">
+      <button class="btn-neutral" onclick="setEmotion('idle')">😐 Idle</button>
+      <button class="btn-happy" onclick="setEmotion('happy')">😊 Happy</button>
+      <button class="btn-sad" onclick="setEmotion('sad')">😢 Sad</button>
+      <button class="btn-angry" onclick="setEmotion('angry')">😠 Angry</button>
+      <button class="btn-sleepy" onclick="setEmotion('sleepy')">😴 Sleepy</button>
+      <button class="btn-love" onclick="setEmotion('adore')">😍 Adore</button>
+    </div>
+  </div>
+  
+  <!-- 右侧参数面板 -->
+  <div class="param-panel">
+    <div class="panel-title">🎛️ 参数调节</div>
+    
+    <!-- 基础设置 -->
+    <div class="param-group">
+      <h4>🎭 基础设置</h4>
+      <label class="checkbox-label">
+        <input type="checkbox" id="param-mask" checked onchange="toggleMask(this.checked)">
+        圆形遮罩
+      </label>
+      <div class="param-item" style="margin-top: 12px;">
+        <label>眼距 <span id="val-eyeGap">240</span></label>
+        <input type="range" id="param-eyeGap" min="100" max="400" step="10" value="240" oninput="updateEyeGap(this.value)">
+      </div>
+      <div class="param-item">
+        <label>眨眼速度 <span id="val-blinkSpeed">300</span>ms</label>
+        <input type="range" id="param-blinkSpeed" min="100" max="500" step="10" value="300" oninput="updateBlinkSpeed(this.value)">
+      </div>
+      <div class="param-item" style="margin-top: 12px;">
+        <label>眼珠样式</label>
+        <div style="display: flex; gap: 8px; margin-top: 6px;">
+          <button id="btn-pupil1" class="pupil-btn active" onclick="switchPupil('pupil')">眼珠 1</button>
+          <button id="btn-pupil2" class="pupil-btn" onclick="switchPupil('pupil2')">眼珠 2</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="sketch.js?v=8"></script>
+  <script>
+    // 圆形遮罩开关
+    function toggleMask(checked) {
+      console.log('toggleMask:', checked);
+      if (window.setMaskEnabled) {
+        window.setMaskEnabled(checked);
+      } else if (window.setCircleMask) {
+        window.setCircleMask(checked);
+      }
+    }
+    
+    // 眼距调节
+    function updateEyeGap(value) {
+      console.log('updateEyeGap:', value);
+      document.getElementById('val-eyeGap').textContent = value;
+      if (window.setEyeGap) {
+        window.setEyeGap(parseInt(value));
+      }
+    }
+    
+    // 眨眼速度调节
+    function updateBlinkSpeed(value) {
+      console.log('updateBlinkSpeed:', value);
+      document.getElementById('val-blinkSpeed').textContent = value;
+      if (window.setBlinkSpeed) {
+        window.setBlinkSpeed(parseInt(value));
+      }
+    }
+    
+    // 切换眼珠样式
+    function switchPupil(type) {
+      console.log('switchPupil:', type);
+      if (window.setPupilType) {
+        window.setPupilType(type);
+      }
+      // 更新按钮状态
+      document.getElementById('btn-pupil1').classList.toggle('active', type === 'pupil');
+      document.getElementById('btn-pupil2').classList.toggle('active', type === 'pupil2');
+    }
+  </script>
+</body>
+</html>
