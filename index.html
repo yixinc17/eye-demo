@@ -239,15 +239,11 @@
       <h4>🎭 基础设置</h4>
       <label class="checkbox-label">
         <input type="checkbox" id="param-mask" checked onchange="toggleMask(this.checked)">
-        圆形遮罩
+        椭圆遮罩
       </label>
       <div class="param-item" style="margin-top: 12px;">
-        <label>眼距 <span id="val-eyeGap">240</span></label>
-        <input type="range" id="param-eyeGap" min="100" max="400" step="10" value="240" oninput="updateEyeGap(this.value)">
-      </div>
-      <div class="param-item">
-        <label>眨眼速度 <span id="val-blinkSpeed">300</span>ms</label>
-        <input type="range" id="param-blinkSpeed" min="100" max="500" step="10" value="300" oninput="updateBlinkSpeed(this.value)">
+        <label>眨眼速度 <span id="val-blinkSpeed">400</span>ms</label>
+        <input type="range" id="param-blinkSpeed" min="200" max="600" step="10" value="400" oninput="updateBlinkSpeed(this.value)">
       </div>
       <div class="param-item" style="margin-top: 12px;">
         <label>眼珠样式</label>
@@ -261,22 +257,11 @@
   
   <script src="sketch.js?v=8"></script>
   <script>
-    // 圆形遮罩开关
+    // 椭圆遮罩开关
     function toggleMask(checked) {
       console.log('toggleMask:', checked);
       if (window.setMaskEnabled) {
         window.setMaskEnabled(checked);
-      } else if (window.setCircleMask) {
-        window.setCircleMask(checked);
-      }
-    }
-    
-    // 眼距调节
-    function updateEyeGap(value) {
-      console.log('updateEyeGap:', value);
-      document.getElementById('val-eyeGap').textContent = value;
-      if (window.setEyeGap) {
-        window.setEyeGap(parseInt(value));
       }
     }
     
