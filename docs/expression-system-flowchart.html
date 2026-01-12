@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>眼睛表情系统架构流程图 v0.1</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 40px;
+      line-height: 1.6;
+    }
+    h1 {
+      text-align: center;
+      color: #4ecdc4;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+    .section {
+      background: #16213e;
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .section h2 {
+      color: #ff6b6b;
+      margin-bottom: 20px;
+      font-size: 20px;
+      border-left: 4px solid #ff6b6b;
+      padding-left: 12px;
+    }
+    .section h3 {
+      color: #feca57;
+      margin: 20px 0 10px;
+      font-size: 16px;
+    }
+    .section p {
+      color: #aaa;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .mermaid {
+      background: #0f0f23;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 15px 0;
+      overflow-x: auto;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 15px;
+      padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #ccc;
+    }
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+    .note {
+      background: rgba(78, 205, 196, 0.1);
+      border-left: 3px solid #4ecdc4;
+      padding: 12px 16px;
+      margin: 15px 0;
+      font-size: 13px;
+      color: #4ecdc4;
+    }
+    .warning {
+      background: rgba(255, 107, 107, 0.1);
+      border-left: 3px solid #ff6b6b;
+      padding: 12px 16px;
+      margin: 15px 0;
+      font-size: 13px;
+      color: #ff6b6b;
+    }
+    ul {
+      margin-left: 20px;
+      color: #bbb;
+      font-size: 14px;
+    }
+    li { margin: 8px 0; }
+    code {
+      background: #2d3436;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 12px;
+      color: #4ecdc4;
+    }
+  </style>
+</head>
+<body>
+  <h1>🐾 眼睛表情系统架构流程图</h1>
+  <p class="subtitle">v0.1 - 图层 + 参数 + 少量特制素材的可组合、可扩展表情系统</p>
+
+  <!-- ==================== 1. 系统总览 ==================== -->
+  <div class="section">
+    <h2>1. 系统总览</h2>
+    <p>表情系统核心公式：<code>表情 = Pose + GazeBehavior + Overlay</code></p>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph Expression["🎭 表情 Expression"]
+        direction TB
+        E1["表情ID<br/>(idle/happy/sad...)"]
+    end
+    
+    subgraph Pose["📐 Pose 静态姿态"]
+        direction TB
+        P1["openPose<br/>睁眼时眼皮姿态"]
+        P2["closePose<br/>闭眼时眼皮姿态"]
+        P3["pupilScaleBase<br/>瞳孔基础大小"]
+        P4["timing<br/>in/hold/out"]
+    end
+    
+    subgraph Gaze["👁️ GazeBehavior 眼珠行为"]
+        direction TB
+        G1["authority<br/>interactive/emotion"]
+        G2["followGain<br/>-1/0/1"]
+        G3["pattern<br/>breathing/anxious..."]
+    end
+    
+    subgraph Overlay["✨ Overlay 叠加层"]
+        direction TB
+        O1["overlay_layer<br/>happy/tears..."]
+        O2["timing<br/>in/hold/out"]
+        O3["animation<br/>scale/alpha"]
+    end
+    
+    subgraph Blink["😌 Blink 眨眼轨道"]
+        direction TB
+        B1["blinkPolicy<br/>off/low/normal/high"]
+    end
+    
+    E1 --> Pose
+    E1 --> Gaze
+    E1 --> Overlay
+    E1 -.-> Blink
+    
+    style Expression fill:#ff6b6b,color:#fff
+    style Pose fill:#4ecdc4,color:#000
+    style Gaze fill:#feca57,color:#000
+    style Overlay fill:#a29bfe,color:#000
+    style Blink fill:#636e72,color:#fff
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item"><div class="legend-color" style="background:#ff6b6b"></div>表情入口</div>
+      <div class="legend-item"><div class="legend-color" style="background:#4ecdc4"></div>Pose 姿态控制</div>
+      <div class="legend-item"><div class="legend-color" style="background:#feca57"></div>Gaze 眼珠行为</div>
+      <div class="legend-item"><div class="legend-color" style="background:#a29bfe"></div>Overlay 叠加效果</div>
+      <div class="legend-item"><div class="legend-color" style="background:#636e72"></div>Blink 独立轨道</div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. 渲染图层结构 ==================== -->
+  <div class="section">
+    <h2>2. 渲染图层结构（从下到上）</h2>
+    <p>每只眼睛由6层图层组成，按以下顺序从下到上渲染：</p>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph RenderStack["渲染堆栈 (从下到上)"]
+        direction TB
+        L1["① eyeball 眼白<br/>固定底图"]
+        L2["② pupil 瞳孔/虹膜<br/>位置: gazeBehavior<br/>尺寸: pupilScale + pattern"]
+        L3["③ highlight 高光<br/>跟随瞳孔，幅度较小"]
+        L4["④ overlay 叠加层 (可选)<br/>符号/星星眼/泪光等<br/>可带动画，可指定层级"]
+        L5["⑤ eyelidLower 下眼皮<br/>平移 + 可选旋转"]
+        L6["⑥ eyelidUpper 上眼皮<br/>平移 + 可选旋转"]
+        
+        L1 --> L2 --> L3 --> L4 --> L5 --> L6
+    end
+    
+    subgraph Controls["控制参数"]
+        C1["Pose.upper<br/>{x, y, rot}"]
+        C2["Pose.lower<br/>{x, y, rot}"]
+        C3["pupilScale<br/>+ pattern.scaleOffset"]
+        C4["gaze.offset<br/>+ followGain"]
+    end
+    
+    C1 --> L6
+    C2 --> L5
+    C3 --> L2
+    C4 --> L2
+    C4 -.->|"幅度 0.3"| L3
+    
+    style L1 fill:#dfe6e9,color:#2d3436
+    style L2 fill:#2d3436,color:#fff
+    style L3 fill:#ffeaa7,color:#2d3436
+    style L4 fill:#a29bfe,color:#fff
+    style L5 fill:#fab1a0,color:#2d3436
+    style L6 fill:#fab1a0,color:#2d3436
+    </div>
+    
+    <div class="note">
+      💡 Overlay 的层级可通过 <code>overlay_layer</code> 参数调整，默认在眼皮之下
+    </div>
+  </div>
+
+  <!-- ==================== 3. Pose 静态姿态系统 ==================== -->
+  <div class="section">
+    <h2>3. Pose 静态姿态系统</h2>
+    <p>Pose 决定"看起来像什么脸"，包含眼皮姿态和瞳孔参数</p>
+    
+    <div class="mermaid">
+flowchart LR
+    subgraph PoseDef["Pose 定义"]
+        direction TB
+        PD1["openPose<br/>上/下眼皮 {x, y, rot}"]
+        PD2["closePose (可选)<br/>闭眼时的姿态"]
+        PD3["pupilScaleBase<br/>瞳孔基础大小"]
+        PD4["timing<br/>{in, hold, out}"]
+    end
+    
+    subgraph Examples["示例 Pose"]
+        direction TB
+        E1["idle<br/>upper.y=-240, rot=0<br/>pupilScale=0.7"]
+        E2["angry<br/>upper.y=-140, rot=±0.35<br/>pupilScale=0.6"]
+        E3["sad<br/>upper.y=-100, rot=∓0.2<br/>pupilScale=0.65"]
+        E4["sleepy<br/>带 eyelidAnimation<br/>上下眼皮循环动画"]
+    end
+    
+    PoseDef --> Examples
+    
+    style PD1 fill:#4ecdc4,color:#000
+    style PD2 fill:#4ecdc4,color:#000
+    style PD3 fill:#4ecdc4,color:#000
+    style PD4 fill:#4ecdc4,color:#000
+    </div>
+    
+    <h3>眼皮位置计算</h3>
+    <div class="mermaid">
+flowchart TB
+    subgraph Calc["动态计算 (基于图片尺寸)"]
+        CA["eyeballRadius = 120px"]
+        CB["lowerCloseY = radius - lidHeight/2"]
+        CC["lowerOpenY = radius + lidHeight/2"]
+        CD["upperOpenY = -eyeSize (出画)"]
+    end
+    
+    subgraph Apply["应用位置"]
+        A1["upper.y: -240 (开) → 0 (闭)"]
+        A2["lower.y: 172 (开) → 69 (闭)"]
+    end
+    
+    Calc --> Apply
+    </div>
+  </div>
+
+  <!-- ==================== 4. GazeBehavior 眼珠行为 ==================== -->
+  <div class="section">
+    <h2>4. GazeBehavior 眼珠行为规则</h2>
+    <p>决定"眼珠怎么动"，用于区分相似表情</p>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph Authority["Authority 控制权"]
+        direction LR
+        A1["interactive<br/>以用户/目标为主<br/>强跟随"]
+        A2["blend<br/>表情自带动作<br/>+ 轻度跟随"]
+        A3["emotion<br/>完全表情自带<br/>神游/思考/睡眠"]
+    end
+    
+    subgraph FollowGain["FollowGain 跟随模式"]
+        direction LR
+        F1["+1 正向跟随"]
+        F2["0 不跟随"]
+        F3["-1 反向跟随"]
+    end
+    
+    subgraph Pattern["Pattern 动画模式"]
+        direction LR
+        P1["breathing<br/>呼吸感缩放"]
+        P2["anxious_loop<br/>担心左右循环"]
+        P3["up_scan<br/>思考上视慢扫"]
+        P4["micro_jitter<br/>轻微颤动"]
+    end
+    
+    Input["用户输入<br/>鼠标/触摸"] --> Authority
+    Authority -->|"interactive"| A1
+    Authority -->|"blend"| A2
+    Authority -->|"emotion"| A3
+    
+    A1 --> FollowGain
+    A2 --> FollowGain
+    A3 -.->|"忽略"| FollowGain
+    
+    FollowGain --> Pattern
+    Pattern --> Output["最终瞳孔位置<br/>offset + follow + pattern"]
+    
+    style Authority fill:#feca57,color:#000
+    style FollowGain fill:#fd79a8,color:#000
+    style Pattern fill:#74b9ff,color:#000
+    </div>
+    
+    <div class="mermaid">
+flowchart LR
+    subgraph Update["瞳孔位置更新流程"]
+        U1["读取 Pose.pupil.offset<br/>基础偏移"]
+        U2["检查 authority"]
+        U3["计算 follow 跟随"]
+        U4["叠加 pattern 动画"]
+        U5["设置 targetPupil"]
+        U6["lerp 平滑过渡"]
+        
+        U1 --> U2 --> U3 --> U4 --> U5 --> U6
+    end
+    </div>
+  </div>
+
+  <!-- ==================== 5. Overlay 叠加层 ==================== -->
+  <div class="section">
+    <h2>5. Overlay 叠加层系统</h2>
+    <p>只在 Pose + Gaze 不够表达时使用</p>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph Trigger["触发 Overlay"]
+        T1["setEmotion('happy')"]
+        T2["emotion.overlay = 'happy_L'"]
+    end
+    
+    subgraph Phases["Overlay 阶段"]
+        direction LR
+        P1["in 渐入<br/>opacity: 0→255"]
+        P2["hold 保持<br/>opacity: 255"]
+        P3["out 渐出<br/>opacity: 255→0"]
+        P4["none 结束<br/>切回 idle"]
+        
+        P1 -->|"timing.in"| P2
+        P2 -->|"timing.hold"| P3
+        P3 -->|"timing.out"| P4
+    end
+    
+    Trigger --> P1
+    
+    subgraph Types["Overlay 类型"]
+        O1["happy 开心弧线"]
+        O2["star_eyes 星星眼"]
+        O3["tears 泪光"]
+        O4["heart 爱心"]
+        O5["imprint 印记"]
+    end
+    
+    style P1 fill:#55efc4,color:#000
+    style P2 fill:#00b894,color:#fff
+    style P3 fill:#fdcb6e,color:#000
+    style P4 fill:#636e72,color:#fff
+    </div>
+  </div>
+
+  <!-- ==================== 6. Blink 眨眼系统 ==================== -->
+  <div class="section">
+    <h2>6. Blink 眨眼系统（独立轨道）</h2>
+    <p>Blink 是独立轨道，不是表情本体，基于当前表情的 openPose→closePose 插值</p>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph Policy["BlinkPolicy 策略"]
+        direction LR
+        BP1["off<br/>禁用眨眼"]
+        BP2["low<br/>4-7秒/次"]
+        BP3["normal<br/>3-5秒/次"]
+        BP4["high<br/>2-4秒/次"]
+        BP5["micro_only<br/>仅微眨"]
+    end
+    
+    subgraph Process["眨眼流程"]
+        direction TB
+        S1["计时器累加"]
+        S2{"达到 nextTime?"}
+        S3["触发眨眼"]
+        S4["闭眼阶段<br/>progress: 0→1"]
+        S5["睁眼阶段<br/>progress: 1→0"]
+        S6["重置计时器<br/>随机下次时间"]
+        
+        S1 --> S2
+        S2 -->|"是"| S3
+        S2 -->|"否"| S1
+        S3 --> S4 --> S5 --> S6 --> S1
+    end
+    
+    subgraph Interpolate["姿态插值"]
+        I1["openPose (当前表情)"]
+        I2["closePose (通用/表情专用)"]
+        I3["lerp(open, close, progress)"]
+        
+        I1 --> I3
+        I2 --> I3
+    end
+    
+    Policy --> Process
+    Process --> Interpolate
+    
+    style BP1 fill:#636e72,color:#fff
+    style S4 fill:#ff7675,color:#fff
+    style S5 fill:#74b9ff,color:#000
+    </div>
+    
+    <div class="warning">
+      ⚠️ 眨眼禁用场景：表情过渡期间、Overlay 激活时、blinkPolicy=off（如 angry 瞪眼）
+    </div>
+  </div>
+
+  <!-- ==================== 7. 表情切换流程 ==================== -->
+  <div class="section">
+    <h2>7. 表情切换与过渡机制</h2>
+    <p>统一调度，不硬闪、不拖延</p>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph Trigger["触发切换"]
+        T1["setEmotion(newId)"]
+    end
+    
+    subgraph Prepare["准备过渡"]
+        P1["记录 fromPose"]
+        P2["获取 toPose"]
+        P3["获取 duration"]
+        P4["处理 Overlay"]
+    end
+    
+    subgraph Transition["过渡动画"]
+        TR1["transition.active = true"]
+        TR2["timer += deltaTime"]
+        TR3["progress = timer/duration"]
+        TR4["easedT = easeOutCubic(t)"]
+        TR5["lerp(fromPose, toPose, easedT)"]
+        TR6["lerp(fromScale, toScale, easedT)"]
+    end
+    
+    subgraph Complete["过渡完成"]
+        C1["transition.active = false"]
+        C2["启动 eyelidAnimation (如有)"]
+        C3["启动 Blink (按 policy)"]
+    end
+    
+    T1 --> P1 --> P2 --> P3 --> P4
+    P4 --> TR1 --> TR2 --> TR3 --> TR4
+    TR4 --> TR5 --> TR6
+    TR6 -->|"t >= 1"| C1
+    C1 --> C2 --> C3
+    
+    style TR1 fill:#fdcb6e,color:#000
+    style TR5 fill:#74b9ff,color:#000
+    style C1 fill:#55efc4,color:#000
+    </div>
+    
+    <h3>打断策略 (interrupt)</h3>
+    <div class="mermaid">
+flowchart LR
+    subgraph Interrupt["打断类型"]
+        I1["soft<br/>允许打断，走短 out"]
+        I2["hard<br/>立即切入"]
+        I3["never<br/>不可打断"]
+    end
+    
+    subgraph Bridge["Bridge 过渡 (可选)"]
+        B1["daze → wakeup → idle"]
+        B2["sleepy → sleep"]
+        B3["sleep → wakeup"]
+    end
+    </div>
+  </div>
+
+  <!-- ==================== 8. 普通 Pose vs 序列 Sequence ==================== -->
+  <div class="section">
+    <h2>8. 普通 Pose vs 序列 Sequence</h2>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph NormalPose["A. 普通表情 (绝大多数)"]
+        direction TB
+        N1["单一 Pose 关键帧"]
+        N2["timing: in/hold/out"]
+        N3["gaze: authority + follow + pattern"]
+        N4["blinkPolicy: 按需"]
+        N5["overlay: 可选"]
+        
+        N1 --> N2 --> N3 --> N4 --> N5
+    end
+    
+    subgraph Sequence["B. 序列表情 (sleepy/wakeup等)"]
+        direction TB
+        S1["keyframes 关键帧数组"]
+        S2["每帧: {time, pose, pupil, gaze, overlay}"]
+        S3["gazeAuthority = emotion"]
+        S4["blinkPolicy = off"]
+        S5["多段动作描述<br/>(眼皮上下多次)"]
+        
+        S1 --> S2 --> S3 --> S4 --> S5
+    end
+    
+    subgraph Examples["示例"]
+        E1["idle/happy/sad/angry<br/>→ 普通 Pose"]
+        E2["sleepy (眼皮上下循环)<br/>wakeup (多段唤醒)<br/>→ 序列 Sequence"]
+    end
+    
+    NormalPose --> E1
+    Sequence --> E2
+    
+    style NormalPose fill:#4ecdc4,color:#000
+    style Sequence fill:#a29bfe,color:#000
+    </div>
+    
+    <div class="note">
+      💡 当前代码中 <code>sleepy</code> 使用 <code>eyelidAnimation</code> 实现循环动画，属于序列表情的简化形式
+    </div>
+  </div>
+
+  <!-- ==================== 9. 主循环 draw() ==================== -->
+  <div class="section">
+    <h2>9. 主循环 draw() 流程</h2>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph MainLoop["draw() 每帧执行"]
+        direction TB
+        D1["handleBlink()<br/>处理眨眼"]
+        D2["updateEyelidAnimation()<br/>眼皮循环动画"]
+        D3["updatePattern()<br/>呼吸感 pattern"]
+        D4["updatePupilFromMouse()<br/>瞳孔跟随"]
+        D5["updateOverlay()<br/>叠加层阶段"]
+        D6["smoothUpdate()<br/>平滑插值"]
+        D7["drawEye(left)"]
+        D8["drawEye(right)"]
+        
+        D1 --> D2 --> D3 --> D4 --> D5 --> D6 --> D7 --> D8
+    end
+    
+    subgraph DrawEye["drawEye() 图层绘制"]
+        direction TB
+        E1["计算 eyelidPose"]
+        E2["创建椭圆遮罩"]
+        E3["绘制 eyeball"]
+        E4["绘制 pupil (位置+缩放)"]
+        E5["绘制 highlight"]
+        E6["绘制 eyelidLower"]
+        E7["绘制 eyelidUpper"]
+        E8["绘制 overlay (如有)"]
+        E9["结束遮罩"]
+        
+        E1 --> E2 --> E3 --> E4 --> E5 --> E6 --> E7 --> E8 --> E9
+    end
+    
+    D7 --> DrawEye
+    D8 --> DrawEye
+    </div>
+  </div>
+
+  <!-- ==================== 10. Idle 系统 ==================== -->
+  <div class="section">
+    <h2>10. Idle 空闲系统</h2>
+    <p>Idle 是一组"低强度表情/动作组合"的集合，在无交互时循环触发</p>
+    
+    <div class="mermaid">
+flowchart TB
+    subgraph IdleSystem["Idle 系统"]
+        direction TB
+        I1["无交互检测"]
+        I2["选择 idle 变体<br/>(idle1/2/3/4)"]
+        I3["应用 Pose + Gaze"]
+        I4["轻微 pattern<br/>呼吸/微扫视"]
+        I5["偶发眨眼"]
+        I6["循环切换"]
+        
+        I1 --> I2 --> I3 --> I4 --> I5 --> I6 --> I2
+    end
+    
+    subgraph IdleVariants["Idle 变体示例"]
+        V1["idle1: 平静呼吸"]
+        V2["idle2: 左右微扫"]
+        V3["idle3: 偶尔眨眼"]
+        V4["idle4: 轻微好奇"]
+    end
+    
+    IdleSystem --> IdleVariants
+    
+    style IdleSystem fill:#636e72,color:#fff
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'dark',
+      themeVariables: {
+        primaryColor: '#4ecdc4',
+        primaryTextColor: '#fff',
+        primaryBorderColor: '#4ecdc4',
+        lineColor: '#888',
+        secondaryColor: '#ff6b6b',
+        tertiaryColor: '#feca57',
+        background: '#16213e',
+        mainBkg: '#16213e',
+        nodeBorder: '#4ecdc4',
+        clusterBkg: 'rgba(78, 205, 196, 0.1)',
+        clusterBorder: '#4ecdc4',
+        titleColor: '#fff',
+        edgeLabelBackground: '#16213e'
+      },
+      flowchart: {
+        htmlLabels: true,
+        curve: 'basis',
+        nodeSpacing: 50,
+        rankSpacing: 50
+      }
+    });
+  </script>
+</body>
+</html>
