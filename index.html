@@ -242,8 +242,14 @@
         椭圆遮罩
       </label>
       <div class="param-item" style="margin-top: 12px;">
-        <label>眨眼速度 <span id="val-blinkSpeed">400</span>ms</label>
-        <input type="range" id="param-blinkSpeed" min="200" max="600" step="10" value="400" oninput="updateBlinkSpeed(this.value)">
+        <label>眨眼策略 <span id="blink-status">(idle)</span></label>
+        <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
+          <button id="btn-blink-off" class="pupil-btn" onclick="switchBlinkPolicy('off')">Off</button>
+          <button id="btn-blink-slow" class="pupil-btn active" onclick="switchBlinkPolicy('slow')">Slow</button>
+          <button id="btn-blink-normal" class="pupil-btn" onclick="switchBlinkPolicy('normal')">Normal</button>
+          <button id="btn-blink-fast" class="pupil-btn" onclick="switchBlinkPolicy('fast')">Fast</button>
+          <button id="btn-blink-twice" class="pupil-btn" onclick="switchBlinkPolicy('fast_twice')">Fast×2</button>
+        </div>
       </div>
       <div class="param-item" style="margin-top: 12px;">
         <label>眼珠样式</label>
@@ -265,14 +271,39 @@
       }
     }
     
-    // 眨眼速度调节
-    function updateBlinkSpeed(value) {
-      console.log('updateBlinkSpeed:', value);
-      document.getElementById('val-blinkSpeed').textContent = value;
-      if (window.setBlinkSpeed) {
-        window.setBlinkSpeed(parseInt(value));
+    // 切换眨眼策略
+    function switchBlinkPolicy(policy) {
+      console.log('switchBlinkPolicy:', policy);
+      if (window.setBlinkPolicy) {
+        window.setBlinkPolicy(policy);
       }
+      // 更新按钮状态
+      updateBlinkButtons(policy);
     }
+    
+    function updateBlinkButtons(policy) {
+      document.getElementById('btn-blink-off').classList.toggle('active', policy === 'off');
+      document.getElementById('btn-blink-slow').classList.toggle('active', policy === 'slow');
+      document.getElementById('btn-blink-normal').classList.toggle('active', policy === 'normal');
+      document.getElementById('btn-blink-fast').classList.toggle('active', policy === 'fast');
+      document.getElementById('btn-blink-twice').classList.toggle('active', policy === 'fast_twice');
+    }
+    
+    // 更新眨眼状态显示（由 sketch.js 调用）
+    window.updateBlinkUI = function(isIdle, currentPolicy) {
+      const status = document.getElementById('blink-status');
+      const buttons = document.querySelectorAll('.param-item button[id^="btn-blink"]');
+      if (isIdle) {
+        status.textContent = '(idle)';
+        status.style.color = '#4ecdc4';
+        buttons.forEach(btn => btn.disabled = false);
+        updateBlinkButtons(currentPolicy);
+      } else {
+        status.textContent = '(pose: off)';
+        status.style.color = '#888';
+        buttons.forEach(btn => btn.disabled = true);
+      }
+    };
     
     // 切换眼珠样式
     function switchPupil(type) {
