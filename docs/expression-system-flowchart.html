@@ -602,6 +602,275 @@ flowchart TB
     </div>
   </div>
 
+  <!-- ==================== 11. 表情数据表格 ==================== -->
+  <div class="section">
+    <h2>11. 表情数据一览表</h2>
+    
+    <h3>📋 表情组合总表</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>表情 ID</th>
+          <th>Authority</th>
+          <th>Blink</th>
+          <th>Overlay</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-idle">idle</span></td>
+          <td>interactive</td>
+          <td>slow (4-7s)</td>
+          <td>—</td>
+          <td>400ms</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-happy">happy</span></td>
+          <td>interactive</td>
+          <td>off</td>
+          <td>happy_L ✨</td>
+          <td>200ms</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-sad">sad</span></td>
+          <td>emotion</td>
+          <td>slow (4-7s)</td>
+          <td>—</td>
+          <td>800ms</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-angry">angry</span></td>
+          <td>interactive</td>
+          <td>off</td>
+          <td>—</td>
+          <td>400ms</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-sleepy">sleepy</span></td>
+          <td>emotion</td>
+          <td>off</td>
+          <td>—</td>
+          <td>800ms</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-adore">adore</span></td>
+          <td>interactive</td>
+          <td>slow (4-7s)</td>
+          <td>—</td>
+          <td>200ms</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>👁️ 瞳孔参数表</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>表情</th>
+          <th>Scale</th>
+          <th>Offset (x, y)</th>
+          <th>Follow</th>
+          <th>Pattern</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-idle">idle</span></td>
+          <td>0.70</td>
+          <td>(0, 0)</td>
+          <td>+1 正向</td>
+          <td>neutral (±3%, 3s)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-happy">happy</span></td>
+          <td>0.75</td>
+          <td>(0, 0)</td>
+          <td>+1 正向</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-sad">sad</span></td>
+          <td>0.65</td>
+          <td>(0, 15)</td>
+          <td>0 不跟随</td>
+          <td>calm (±2%, 4s)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-angry">angry</span></td>
+          <td>0.60</td>
+          <td>(0, 0)</td>
+          <td>-1 反向</td>
+          <td>anxious (±5%, 1.5s)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-sleepy">sleepy</span></td>
+          <td>0.70</td>
+          <td>(0, 15)</td>
+          <td>0 不跟随</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-adore">adore</span></td>
+          <td>0.90</td>
+          <td>(0, 0)</td>
+          <td>+1 正向</td>
+          <td>calm (±2%, 4s)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>👀 眼皮姿态表 (上眼皮 Upper)</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>表情</th>
+          <th>左眼 L</th>
+          <th>右眼 R</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-idle">idle</span></td>
+          <td>x:0, y:-240, rot:0</td>
+          <td>x:0, y:-240, rot:0</td>
+          <td>完全睁开（出画）</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-happy">happy</span></td>
+          <td>x:0, y:-220, rot:0</td>
+          <td>x:0, y:-220, rot:0</td>
+          <td>微眯（略下移 20px）</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-sad">sad</span></td>
+          <td>x:0, y:-100, rot:-0.2</td>
+          <td>x:0, y:-100, rot:+0.2</td>
+          <td>八字眉（下垂 + 内旋）</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-angry">angry</span></td>
+          <td>x:+30, y:-140, rot:+0.35</td>
+          <td>x:-30, y:-140, rot:-0.35</td>
+          <td>倒八字（外移 + 外旋）</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-sleepy">sleepy</span></td>
+          <td>x:0, y:-100, rot:0</td>
+          <td>x:0, y:-100, rot:0</td>
+          <td>半闭（带循环动画）</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-adore">adore</span></td>
+          <td>x:0, y:-240, rot:0</td>
+          <td>x:0, y:-240, rot:0</td>
+          <td>完全睁开 + 大瞳孔</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>🔄 特殊动画配置</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>表情</th>
+          <th>动画类型</th>
+          <th>参数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-sleepy">sleepy</span></td>
+          <td>eyelidAnimation</td>
+          <td>upper: [-100, 0] / 5s<br/>lower: [130, 69] / 4.5s</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-happy">happy</span></td>
+          <td>overlay (happy_L)</td>
+          <td>in: 500ms, hold: 3s, out: 500ms</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>🎭 Pattern 呼吸动画</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Pattern</th>
+          <th>属性</th>
+          <th>幅度</th>
+          <th>周期</th>
+          <th>使用表情</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>calm</td>
+          <td>scale</td>
+          <td>±2%</td>
+          <td>4s</td>
+          <td>sad, adore</td>
+        </tr>
+        <tr>
+          <td>neutral</td>
+          <td>scale</td>
+          <td>±3%</td>
+          <td>3s</td>
+          <td>idle</td>
+        </tr>
+        <tr>
+          <td>anxious</td>
+          <td>scale</td>
+          <td>±5%</td>
+          <td>1.5s</td>
+          <td>angry</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <style>
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 15px 0;
+      font-size: 13px;
+    }
+    .data-table th, .data-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #333;
+    }
+    .data-table th {
+      background: #0d0d0d;
+      color: #4ecdc4;
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .data-table tr:hover {
+      background: rgba(78, 205, 196, 0.05);
+    }
+    .data-table td {
+      color: #ccc;
+    }
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .tag-idle { background: #636e72; color: #fff; }
+    .tag-happy { background: #ffc107; color: #333; }
+    .tag-sad { background: #17a2b8; color: #fff; }
+    .tag-angry { background: #dc3545; color: #fff; }
+    .tag-sleepy { background: #6c757d; color: #fff; }
+    .tag-adore { background: #e91e63; color: #fff; }
+  </style>
+
   <script>
     mermaid.initialize({
       startOnLoad: true,
