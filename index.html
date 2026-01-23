@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pawbie Eye Demo - 图层版</title>
-  <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -221,12 +221,56 @@
     <h1 class="title">🐾 Pawbie Eye Demo</h1>
     <div id="canvas-container"></div>
     <div class="emotion-buttons">
-      <button class="btn-neutral" onclick="setEmotion('idle')">😐 Idle</button>
-      <button class="btn-happy" onclick="setEmotion('happy')">😊 Happy</button>
-      <button class="btn-sad" onclick="setEmotion('sad')">😢 Sad</button>
-      <button class="btn-angry" onclick="setEmotion('angry')">😠 Angry</button>
-      <button class="btn-sleepy" onclick="setEmotion('sleepy')">😴 Sleepy</button>
-      <button class="btn-love" onclick="setEmotion('adore')">😍 Adore</button>
+      <!-- 基础 -->
+      <button class="btn-neutral" onclick="setEmotion('idle')">Idle</button>
+      
+      <!-- 喜爱类 -->
+      <button class="btn-love" onclick="setEmotion('adore')">Adore</button>
+      <button class="btn-love" onclick="setEmotion('expectant')">Expectant</button>
+      <button class="btn-love" onclick="setEmotion('imprint')">Imprint</button>
+      
+      <!-- 关心/忧虑类 -->
+      <button class="btn-sad" onclick="setEmotion('caring')">Caring</button>
+      <button class="btn-sad" onclick="setEmotion('sad')">Sad</button>
+      <button class="btn-sad" onclick="setEmotion('worried')">Worried</button>
+      
+      <!-- 愤怒 -->
+      <button class="btn-angry" onclick="setEmotion('angry')">Angry</button>
+      
+      <!-- 平静/发呆类 -->
+      <button class="btn-neutral" onclick="setEmotion('calm')">Calm</button>
+      <button class="btn-neutral" onclick="setEmotion('daze')">Daze</button>
+      
+      <!-- 思考类 -->
+      <button class="btn-surprised" onclick="setEmotion('confused')">Confused</button>
+      <button class="btn-surprised" onclick="setEmotion('thinking')">Thinking</button>
+      <button class="btn-surprised" onclick="setEmotion('curious')">Curious</button>
+      
+      <!-- 享受/观察/放松 -->
+      <button class="btn-happy" onclick="setEmotion('enjoy')">Enjoy</button>
+      <button class="btn-neutral" onclick="setEmotion('observe')">Observe</button>
+      <button class="btn-neutral" onclick="setEmotion('relaxed')">Relaxed</button>
+      
+      <!-- 惊吓 -->
+      <button class="btn-angry" onclick="setEmotion('scared')">Scared</button>
+      
+      <!-- 眨眼 -->
+      <button class="btn-happy" onclick="setEmotion('wink')">Wink</button>
+      
+      <!-- 特殊表情（需特制图层） -->
+      <button class="btn-happy" onclick="setEmotion('happy')">Happy ★</button>
+      <button class="btn-love" onclick="setEmotion('tsundere')">Tsundere ★</button>
+      
+      <!-- 环顾 -->
+      <button class="btn-neutral" onclick="setEmotion('lookaround')">LookAround</button>
+      
+      <!-- 睡眠类 -->
+      <button class="btn-sleepy" onclick="setEmotion('sleepy')">Sleepy</button>
+      <button class="btn-sleepy" onclick="setEmotion('sleep')">Sleep</button>
+      
+      <!-- 醒来类 -->
+      <button class="btn-surprised" onclick="setEmotion('wakeup')">WakeUp</button>
+      <button class="btn-surprised" onclick="setEmotion('wokeupwithastart')">StartledAwake</button>
     </div>
   </div>
   
@@ -261,7 +305,7 @@
     </div>
   </div>
   
-  <script src="sketch.js?v=8"></script>
+  <script src="sketch.js?v=9"></script>
   <script>
     // 椭圆遮罩开关
     function toggleMask(checked) {

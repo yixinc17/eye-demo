@@ -95,11 +95,11 @@ const poses = {
   angry: {
     left: {
       upper: { x: 30, y: -140, rot: 0.35 },
-      lower: { x: 0, y: 172, rot: 0 }
+      lower: { x: 0, y: 100, rot: 0 }
     },
     right: {
       upper: { x: -30, y: -140, rot: -0.35 },
-      lower: { x: 0, y: 172, rot: 0 }
+      lower: { x: 0, y: 100, rot: 0 }
     },
     pupil: {
       scale: 0.6,
@@ -157,11 +157,11 @@ const poses = {
   adore: {
     left: {
       upper: { x: 0, y: -240, rot: 0 },
-      lower: { x: 0, y: 172, rot: 0 }
+      lower: { x: 0, y: 120, rot: 0 }
     },
     right: {
       upper: { x: 0, y: -240, rot: 0 },
-      lower: { x: 0, y: 172, rot: 0 }
+      lower: { x: 0, y: 120, rot: 0 }
     },
     pupil: {
       scale: 0.9,
@@ -169,6 +169,194 @@ const poses = {
       pattern: 'calm'
     },
     gaze: GAZE.follow,
+    overlay: null,
+    duration: DURATION.fast
+  },
+
+  // ========== 喜爱类 ==========
+  expectant: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 100, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 100, rot: 0 } },
+    pupil: { scale: 0.85, offset: { x: 0, y: 0 }, pattern: 'neutral' },
+    gaze: GAZE.follow,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  imprint: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 120, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 120, rot: 0 } },
+    pupil: { scale: 0.95, offset: { x: 0, y: 0 }, pattern: 'neutral' },
+    gaze: GAZE.follow,
+    overlay: 'imprint_L',
+    duration: DURATION.normal
+  },
+
+  // ========== 关心/忧虑类 ==========
+  caring: {
+    left: { upper: { x: 0, y: -180, rot: -0.1 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -180, rot: 0.1 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 5 }, pattern: 'calm' },
+    gaze: GAZE.follow,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  worried: {
+    left: { upper: { x: 0, y: -150, rot: -0.2 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -150, rot: 0.2 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.6, offset: { x: 0, y: 10 }, pattern: 'anxious' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  // ========== 平静/发呆类 ==========
+  calm: {
+    left: { upper: { x: 0, y: -140, rot: 0.15 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -140, rot: -0.15 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'calm' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  daze: {
+    left: { upper: { x: 0, y: -100, rot: 0.15 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -100, rot: -0.15 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.65, offset: { x: 0, y: 0 }, pattern: 'calm' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  // ========== 思考类 ==========
+  confused: {
+    left: { upper: { x: 0, y: -120, rot: -0.2}, lower: { x: 0, y: 110, rot: 0 } },
+    right: { upper: { x: 0, y: -150, rot: 0.1 }, lower: { x: 0, y: 120, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 10, y: -5 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  thinking: {
+    left: { upper: { x: 0, y: -140, rot: -0.1 }, lower: { x: 0, y: 120, rot: 0 } },
+    right: { upper: { x: 0, y: -200, rot: 0 }, lower: { x: 0, y: 120, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 15, y: -15 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  curious: {
+    left: { upper: { x: 15, y: -150, rot: 0.4 }, lower: { x: 0, y: 100, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 100, rot: 0 } },
+    pupil: { scale: 0.8, offset: { x: 15, y: -15 }, pattern: 'neutral' },
+    gaze: GAZE.follow,
+    overlay: null,
+    duration: DURATION.fast
+  },
+
+  // ========== 享受/观察/放松 ==========
+  enjoy: {
+    left: { upper: { x: 0, y: -50, rot: 0.3 }, lower: { x: 0, y: 69, rot: 0.3 } },
+    right: { upper: { x: 0, y: -50, rot: -0.3 }, lower: { x: 0, y: 69, rot: 0.3 } },
+    pupil: { scale: 0.75, offset: { x: 0, y: 5 }, pattern: 'calm' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  observe: {
+    left: { upper: { x: 0, y: -100, rot: 0.15 }, lower: { x: 0, y: 100, rot: 0 } },
+    right: { upper: { x: 0, y: -100, rot: -0.15 }, lower: { x: 0, y: 100, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'neutral' },
+    gaze: GAZE.follow,
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  relaxed: {
+    left: { upper: { x: 0, y: -50, rot: -0.2 }, lower: { x: 0, y: 69, rot: -0.2 } },
+    right: { upper: { x: 0, y: -50, rot: 0.2 }, lower: { x: 0, y: 69, rot: 0.2 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'calm' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  // ========== 惊吓 ==========
+  scared: {
+    left: { upper: { x: 0, y: -240, rot: -0.1 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0.1 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.5, offset: { x: 0, y: 0 }, pattern: 'panic' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.fast
+  },
+
+  // ========== 眨眼 ==========
+  wink: {
+    left: { upper: { x: 0, y: -100, rot: 0.3}, lower: { x: 0, y: 172, rot: 0 } },  // 左眼闭
+    right: { upper: { x: 0, y: -70, rot: -0.3 }, lower: { x: 0, y: 60, rot: -0.3 } },  // 右眼开
+    pupil: { scale: 0.75, offset: { x: 0, y: 0 }, pattern: null },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal 
+  },
+
+  // ========== 特殊表情（需特制图层，无眼皮参与） ==========
+  tsundere: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 10, y: 0 }, pattern: null },
+    gaze: GAZE.none,
+    overlay: 'tsundere_L',  // TODO: 需要制作特殊图层
+    duration: DURATION.normal
+  },
+
+  // ========== 环顾 ==========
+  lookaround: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'neutral' },
+    gaze: GAZE.follow,
+    // TODO: 可能需要 pupil 动画来实现自动环顾
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  // ========== 睡眠类 ==========
+  sleep: {
+    left: { upper: { x: 0, y: -50, rot: 0 }, lower: { x: 0, y: 69, rot: 0 } },
+    right: { upper: { x: 0, y: -50, rot: 0 }, lower: { x: 0, y: 69, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: null },
+    gaze: GAZE.none,
+    // 闭眼状态，可能有轻微呼吸动画
+    eyelidAnimation: {
+      upper: { range: [-50, -40], period: 4000 },
+      lower: { range: [69, 60], period: 4000 }
+    },
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  // ========== 醒来类 ==========
+  wakeup: {
+    left: { upper: { x: 0, y: -100, rot: 0 }, lower: { x: 0, y: 140, rot: 0 } },
+    right: { upper: { x: 0, y: -100, rot: 0 }, lower: { x: 0, y: 140, rot: 0 } },
+    pupil: { scale: 0.65, offset: { x: 0, y: 10 }, pattern: 'calm' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  wokeupwithastart: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.5, offset: { x: 0, y: 0 }, pattern: 'anxious' },
+    gaze: GAZE.none,
     overlay: null,
     duration: DURATION.fast
   }
@@ -191,6 +379,11 @@ const patterns = {
     property: 'scale',
     amplitude: 0.05,        // ±5% 大变化
     period: 1500            // 1.5秒 快节奏
+  },
+  panic: {
+    property: 'scale',
+    amplitude: 0.08,        // ±8% 剧烈变化
+    period: 800             // 0.8秒 非常急促
   }
 };
 
@@ -211,19 +404,34 @@ const overlays = {
     layer: 6,
     scale: 1.0,
     timing: { in: 500, hold: 3000, out: 500 }
+  },
+  imprint_L: {
+    asset: 'imprintOverlay',
+    layer: 6,
+    scale: 1.0,
+    timing: { in: 500, hold: 3000, out: 500 },
+    pattern: 'neutral'  // overlay 呼吸动画
+  },
+  tsundere_L: {
+    asset: 'tsundereOverlay',
+    layer: 6,
+    scale: 1.0,
+    timing: { in: 500, hold: 3000, out: 500 }
   }
 };
 
 // ============ 图层资源 ============
 let layers = {
   left: {
-    eyeball: null,      // 眼白
-    pupil: null,        // 瞳孔
-    pupil2: null,       // 备选瞳孔
-    highlight: null,    // 高光
-    eyelidUpper: null,  // 上眼皮
-    eyelidLower: null,  // 下眼皮
-    happyOverlay: null  // 开心覆盖图层
+    eyeball: null,        // 眼白
+    pupil: null,          // 瞳孔
+    pupil2: null,         // 备选瞳孔
+    highlight: null,      // 高光
+    eyelidUpper: null,    // 上眼皮
+    eyelidLower: null,    // 下眼皮
+    happyOverlay: null,   // 开心覆盖图层
+    imprintOverlay: null, // imprint 覆盖图层
+    tsundereOverlay: null // tsundere 覆盖图层
   },
   right: {
     eyeball: null,
@@ -232,7 +440,9 @@ let layers = {
     highlight: null,
     eyelidUpper: null,
     eyelidLower: null,
-    happyOverlay: null
+    happyOverlay: null,
+    imprintOverlay: null,
+    tsundereOverlay: null
   }
 };
 
@@ -483,7 +693,9 @@ function preload() {
     layers.left.eyelidUpper = loadImage('assets/left_eye/lidU_L.png', null, onError);
     layers.left.eyelidLower = loadImage('assets/left_eye/lidD_L.png', null, onError);
     layers.left.happyOverlay = loadImage('assets/left_eye/happyL.png', null, onError);
-    
+    layers.left.imprintOverlay = loadImage('assets/left_eye/imprintL.png', null, onError);
+    layers.left.tsundereOverlay = loadImage('assets/left_eye/tsundereL.png', null, onError);
+
     // 右眼图层（独立素材，不再镜像！）
     layers.right.eyeball = loadImage('assets/right_eye/eyeball.png', null, onError);
     layers.right.pupil = loadImage('assets/right_eye/pupil.png', null, onError);
@@ -492,6 +704,8 @@ function preload() {
     layers.right.eyelidUpper = loadImage('assets/right_eye/lidU_R.png', null, onError);
     layers.right.eyelidLower = loadImage('assets/right_eye/lidD_R.png', null, onError);
     layers.right.happyOverlay = loadImage('assets/right_eye/happyR.png', null, onError);
+    layers.right.imprintOverlay = loadImage('assets/right_eye/imprintR.png', null, onError);
+    layers.right.tsundereOverlay = loadImage('assets/right_eye/tsundereR.png', null, onError);
   }
 }
 
@@ -535,9 +749,6 @@ function calculateEyelidPositions() {
   idle.closePose.left.lower.y = eyelidCalc.lowerCloseY;
   idle.closePose.right.lower.y = eyelidCalc.lowerCloseY;
   
-  // 更新所有 poses 中的下眼皮位置
-  updatePosesWithCalculatedValues();
-  
   console.log('眼皮位置计算完成:', {
     '下眼皮图片高度': lidDHeight,
     '上眼皮图片高度': lidUHeight,
@@ -545,23 +756,6 @@ function calculateEyelidPositions() {
     '下眼皮张开Y': eyelidCalc.lowerOpenY,
     '上眼皮张开Y': eyelidCalc.upperOpenY
   });
-}
-
-// 更新所有 poses 中的下眼皮位置
-function updatePosesWithCalculatedValues() {
-  for (let poseName in poses) {
-    const pose = poses[poseName];
-    
-    // 更新 left.lower
-    if (pose.left && pose.left.lower) {
-      pose.left.lower.y = eyelidCalc.lowerOpenY;
-    }
-    
-    // 更新 right.lower（如果独立定义）
-    if (pose.right && pose.right.lower) {
-      pose.right.lower.y = eyelidCalc.lowerOpenY;
-    }
-  }
 }
 
 // ============ 初始化 ============
@@ -681,17 +875,32 @@ function drawImageLayers(side) {
     pop();
   }
   
-  // 6. 覆盖图层 (如 happyL) - 在眼皮之上、遮罩之内
-  if (layer.happyOverlay && state.overlay.active) {
-    push();
-    tint(255, state.overlay.opacity);
-    const overlayData = overlays[state.overlay.id] || { scale: 1.0 };
-    image(layer.happyOverlay, 0, 0, s * overlayData.scale, s * overlayData.scale);
-    noTint();
-    pop();
-    // 调试
-    if (side === 'left' && frameCount % 60 === 0) {
-      console.log('Overlay:', state.overlay.phase, 'opacity:', state.overlay.opacity.toFixed(0));
+  // 6. 覆盖图层 (如 happyL, imprintL, tsundereL) - 在眼皮之上、遮罩之内
+  if (state.overlay.active && state.overlay.id) {
+    const overlayData = overlays[state.overlay.id];
+    if (overlayData) {
+      const overlayImage = layer[overlayData.asset];  // 动态获取对应图层
+      if (overlayImage) {
+        push();
+        tint(255, state.overlay.opacity);
+        
+        // 计算 overlay 缩放（基础 + pattern 呼吸）
+        let overlayScale = overlayData.scale;
+        if (overlayData.pattern && patterns[overlayData.pattern]) {
+          const pat = patterns[overlayData.pattern];
+          const phase = (millis() % pat.period) / pat.period;
+          const breath = Math.sin(phase * Math.PI * 2) * pat.amplitude;
+          overlayScale += breath;
+        }
+        
+        image(overlayImage, 0, 0, s * overlayScale, s * overlayScale);
+        noTint();
+        pop();
+        // 调试
+        if (side === 'left' && frameCount % 60 === 0) {
+          console.log('Overlay:', state.overlay.id, state.overlay.phase, 'opacity:', state.overlay.opacity.toFixed(0));
+        }
+      }
     }
   }
   
