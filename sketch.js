@@ -325,24 +325,28 @@ const poses = {
     right: { upper: { x: 0, y: -50, rot: 0 }, lower: { x: 0, y: 69, rot: 0 } },
     pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: null },
     gaze: GAZE.none,
-    // 闭眼状态，可能有轻微呼吸动画
     eyelidAnimation: {
       upper: { range: [-50, -40], period: 4000 },
       lower: { range: [69, 60], period: 4000 }
     },
     overlay: null,
     duration: DURATION.slow,
-    holdDuration: null  // 无限，需手动触发 wakeup/startled
+    holdDuration: null,
+    transitionMode: 'direct',
+    allowedFrom: ['sleepy']
   },
 
   // ========== 醒来类 ==========
   wakeup: {
-    left: { upper: { x: 0, y: -100, rot: 0 }, lower: { x: 0, y: 140, rot: 0 } },
-    right: { upper: { x: 0, y: -100, rot: 0 }, lower: { x: 0, y: 140, rot: 0 } },
-    pupil: { scale: 0.65, offset: { x: 0, y: 10 }, pattern: 'calm' },
-    gaze: GAZE.none,
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'neutral' },
+    gaze: GAZE.follow,
     overlay: null,
-    duration: DURATION.slow
+    duration: 1200,
+    transitionMode: 'direct',
+    allowedFrom: ['sleepy', 'sleep', 'daze'],
+    autoReturnToIdle: true
   },
 
   startled: {
@@ -351,14 +355,13 @@ const poses = {
     pupil: { scale: 0.5, offset: { x: 0, y: 0 }, pattern: 'panic' },
     gaze: GAZE.none,
     overlay: null,
-    duration: DURATION.fast,
+    duration: DURATION.normal,
     transitionMode: 'direct',
-    // 关键帧动画：微闭 → 快速睁大
     eyelidAnimation: {
       type: 'keyframes',
       keyframes: [
-        { upper: { y: 20 }, lower: { y: 50 }, duration: 100 },    // 微闭眼
-        { upper: { y: -240 }, lower: { y: 172 }, duration: 200 }  // 快速睁大
+        { upper: { y: -50 }, lower: { y: 80 }, duration: 150 },   // 微闭眼（减少下降幅度）
+        { upper: { y: -240 }, lower: { y: 172 }, duration: 350 }  // 睁大（放慢速度）
       ],
       loop: false
     }
@@ -1326,8 +1329,15 @@ function smoothUpdate() {
         // 执行第二段过渡：idle → 目标 pose
         setEmotion(pendingPoseName);
       } else {
-        // 过渡完成，启动 hold 阶段
-        startHoldPhase();
+        // 检查是否需要自动返回 idle
+        const currentPose = poses[state.current];
+        if (currentPose && currentPose.autoReturnToIdle) {
+          state.current = 'idle';
+          notifyBlinkUI();
+        } else {
+          // 过渡完成，启动 hold 阶段
+          startHoldPhase();
+        }
       }
     }
   } else {
@@ -1392,6 +1402,14 @@ function setEmotion(emotionId) {
   if (!targetPose) {
     console.warn(`Unknown pose: ${emotionId}`);
     return;
+  }
+  
+  // 检查 allowedFrom 限制
+  if (targetPose.allowedFrom && targetPose.allowedFrom.length > 0) {
+    if (!targetPose.allowedFrom.includes(state.current)) {
+      console.warn(`Pose "${emotionId}" only allowed from: ${targetPose.allowedFrom.join(', ')}, current: ${state.current}`);
+      return;
+    }
   }
   
   // 如果当前不是 idle，检查过渡模式
