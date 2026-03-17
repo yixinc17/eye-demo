@@ -151,7 +151,9 @@ const poses = {
       lower: { range: [130, 69], period: 4500 }
     },
     overlay: null,
-    duration: DURATION.slow
+    duration: DURATION.slow,
+    holdDuration: 8000,    // hold 8 秒后自动进入下一状态
+    nextPose: 'sleep'      // 自动进入 sleep
   },
   
   adore: {
@@ -194,8 +196,8 @@ const poses = {
 
   // ========== 关心/忧虑类 ==========
   caring: {
-    left: { upper: { x: 0, y: -180, rot: -0.1 }, lower: { x: 0, y: 172, rot: 0 } },
-    right: { upper: { x: 0, y: -180, rot: 0.1 }, lower: { x: 0, y: 172, rot: 0 } },
+    left: { upper: { x: 0, y: -150, rot: -0.1 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -150, rot: 0.1 }, lower: { x: 0, y: 172, rot: 0 } },
     pupil: { scale: 0.7, offset: { x: 0, y: 5 }, pattern: 'calm' },
     gaze: GAZE.follow,
     overlay: null,
@@ -261,7 +263,7 @@ const poses = {
   // ========== 享受/观察/放松 ==========
   enjoy: {
     left: { upper: { x: 0, y: -50, rot: 0.3 }, lower: { x: 0, y: 69, rot: 0.3 } },
-    right: { upper: { x: 0, y: -50, rot: -0.3 }, lower: { x: 0, y: 69, rot: 0.3 } },
+    right: { upper: { x: 0, y: -50, rot: -0.3 }, lower: { x: 0, y: 69, rot: -0.3 } },
     pupil: { scale: 0.75, offset: { x: 0, y: 5 }, pattern: 'calm' },
     gaze: GAZE.none,
     overlay: null,
@@ -317,16 +319,6 @@ const poses = {
   },
 
   // ========== 环顾 ==========
-  lookaround: {
-    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
-    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
-    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'neutral' },
-    gaze: GAZE.follow,
-    // TODO: 可能需要 pupil 动画来实现自动环顾
-    overlay: null,
-    duration: DURATION.normal
-  },
-
   // ========== 睡眠类 ==========
   sleep: {
     left: { upper: { x: 0, y: -50, rot: 0 }, lower: { x: 0, y: 69, rot: 0 } },
@@ -339,7 +331,8 @@ const poses = {
       lower: { range: [69, 60], period: 4000 }
     },
     overlay: null,
-    duration: DURATION.slow
+    duration: DURATION.slow,
+    holdDuration: null  // 无限，需手动触发 wakeup/startled
   },
 
   // ========== 醒来类 ==========
@@ -352,13 +345,23 @@ const poses = {
     duration: DURATION.slow
   },
 
-  wokeupwithastart: {
+  startled: {
     left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
     right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
-    pupil: { scale: 0.5, offset: { x: 0, y: 0 }, pattern: 'anxious' },
+    pupil: { scale: 0.5, offset: { x: 0, y: 0 }, pattern: 'panic' },
     gaze: GAZE.none,
     overlay: null,
-    duration: DURATION.fast
+    duration: DURATION.fast,
+    transitionMode: 'direct',
+    // 关键帧动画：微闭 → 快速睁大
+    eyelidAnimation: {
+      type: 'keyframes',
+      keyframes: [
+        { upper: { y: 20 }, lower: { y: 50 }, duration: 100 },    // 微闭眼
+        { upper: { y: -240 }, lower: { y: 172 }, duration: 200 }  // 快速睁大
+      ],
+      loop: false
+    }
   }
 };
 
@@ -500,6 +503,13 @@ let state = {
   // 待处理的 pose（两段式过渡用）
   pendingPose: null,
   
+  // Hold 阶段状态
+  hold: {
+    active: false,
+    timer: 0,
+    duration: null  // null = 无限
+  },
+  
   // Pattern 动画状态
   pattern: {
     time: 0,
@@ -512,7 +522,13 @@ let state = {
     active: false,
     time: 0,
     upperY: -240,
-    lowerY: 172
+    lowerY: 172,
+    // 关键帧动画状态
+    keyframeIndex: 0,      // 当前关键帧索引
+    keyframeTime: 0,       // 当前关键帧已过时间
+    startUpperY: -240,     // 当前关键帧起始位置
+    startLowerY: 172,
+    finished: false        // 动画是否已完成
   }
 };
 
@@ -782,6 +798,7 @@ function draw() {
   updatePattern();           // 更新呼吸感等 pattern
   updatePupilFromMouse();    // 使用 follow + offset + pattern
   updateOverlay();
+  updateHoldPhase();         // 更新 hold 阶段计时
   smoothUpdate();
   
   // 计算眼睛位置
@@ -1112,12 +1129,14 @@ function updateEyelidAnimation() {
   // idle 状态没有眼皮动画
   if (state.current === 'idle') {
     state.eyelidAnim.active = false;
+    state.eyelidAnim.finished = false;
     return;
   }
   
   const pose = poses[state.current];
   if (!pose || !pose.eyelidAnimation) {
     state.eyelidAnim.active = false;
+    state.eyelidAnim.finished = false;
     return;
   }
   
@@ -1125,11 +1144,64 @@ function updateEyelidAnimation() {
   if (state.transition.active) {
     state.eyelidAnim.active = false;
     state.eyelidAnim.time = 0;
+    state.eyelidAnim.keyframeIndex = 0;
+    state.eyelidAnim.keyframeTime = 0;
+    state.eyelidAnim.finished = false;
     return;
   }
   
-  state.eyelidAnim.active = true;
   const anim = pose.eyelidAnimation;
+  
+  // 关键帧动画
+  if (anim.type === 'keyframes') {
+    // 如果动画已完成且不循环，保持最终状态
+    if (state.eyelidAnim.finished && !anim.loop) {
+      state.eyelidAnim.active = true;
+      return;
+    }
+    
+    state.eyelidAnim.active = true;
+    const keyframes = anim.keyframes;
+    
+    // 初始化起始位置（第一次进入时）
+    if (state.eyelidAnim.keyframeIndex === 0 && state.eyelidAnim.keyframeTime === 0) {
+      state.eyelidAnim.startUpperY = state.eyelidAnim.upperY;
+      state.eyelidAnim.startLowerY = state.eyelidAnim.lowerY;
+    }
+    
+    const currentKF = keyframes[state.eyelidAnim.keyframeIndex];
+    state.eyelidAnim.keyframeTime += deltaTime;
+    
+    // 计算当前关键帧进度
+    const progress = Math.min(state.eyelidAnim.keyframeTime / currentKF.duration, 1);
+    const easedProgress = 1 - Math.pow(1 - progress, 3);  // easeOutCubic
+    
+    // 插值到目标位置
+    state.eyelidAnim.upperY = lerp(state.eyelidAnim.startUpperY, currentKF.upper.y, easedProgress);
+    state.eyelidAnim.lowerY = lerp(state.eyelidAnim.startLowerY, currentKF.lower.y, easedProgress);
+    
+    // 当前关键帧完成，进入下一个
+    if (progress >= 1) {
+      state.eyelidAnim.keyframeIndex++;
+      state.eyelidAnim.keyframeTime = 0;
+      state.eyelidAnim.startUpperY = currentKF.upper.y;
+      state.eyelidAnim.startLowerY = currentKF.lower.y;
+      
+      // 所有关键帧完成
+      if (state.eyelidAnim.keyframeIndex >= keyframes.length) {
+        if (anim.loop) {
+          state.eyelidAnim.keyframeIndex = 0;
+        } else {
+          state.eyelidAnim.finished = true;
+          state.eyelidAnim.keyframeIndex = keyframes.length - 1;
+        }
+      }
+    }
+    return;
+  }
+  
+  // 循环动画（原有逻辑）
+  state.eyelidAnim.active = true;
   state.eyelidAnim.time += deltaTime;
   
   // 上眼皮动画
@@ -1176,6 +1248,47 @@ function updatePattern() {
 }
 
 // ============ 平滑更新 ============
+// ============ Hold 阶段管理 ============
+// 默认 hold 时长（普通表情）
+const DEFAULT_HOLD_DURATION = 2000;
+
+function startHoldPhase() {
+  const pose = poses[state.current];
+  if (!pose) {
+    state.hold.active = false;
+    return;
+  }
+  
+  state.hold.active = true;
+  state.hold.timer = 0;
+  // holdDuration: 数字 = 指定时长, null = 无限, undefined = 使用默认值
+  state.hold.duration = pose.holdDuration !== undefined 
+    ? pose.holdDuration 
+    : DEFAULT_HOLD_DURATION;
+}
+
+function updateHoldPhase() {
+  if (!state.hold.active) return;
+  if (state.transition.active) return;  // 过渡中不计时
+  if (state.hold.duration === null) return;  // 无限 hold
+  
+  state.hold.timer += deltaTime;
+  
+  // hold 时间到，自动转场
+  if (state.hold.timer >= state.hold.duration) {
+    state.hold.active = false;
+    
+    const pose = poses[state.current];
+    if (pose && pose.nextPose) {
+      // 有指定下一个表情，自动切换
+      setEmotion(pose.nextPose);
+    } else {
+      // 没有指定，回到 idle
+      setEmotion('idle');
+    }
+  }
+}
+
 function smoothUpdate() {
   // 面板控制时不进行 lerp
   if (panelControlled) {
@@ -1212,6 +1325,9 @@ function smoothUpdate() {
         state.pendingPose = null;
         // 执行第二段过渡：idle → 目标 pose
         setEmotion(pendingPoseName);
+      } else {
+        // 过渡完成，启动 hold 阶段
+        startHoldPhase();
       }
     }
   } else {
@@ -1239,6 +1355,10 @@ function startTransition(fromPose, toPose, duration) {
 function setEmotion(emotionId) {
   console.log('setEmotion called:', emotionId, 'current:', state.current);
   panelControlled = false;
+  
+  // 重置 hold 状态
+  state.hold.active = false;
+  state.hold.timer = 0;
   
   // 如果目标就是当前状态，不做任何事
   if (emotionId === state.current) return;
@@ -1274,9 +1394,38 @@ function setEmotion(emotionId) {
     return;
   }
   
-  // 如果当前不是 idle，需要先 out 再 in（两段式）
+  // 如果当前不是 idle，检查过渡模式
   if (state.current !== 'idle') {
-    // 先过渡回 idle，然后排队进入新 pose
+    // direct 模式：直接从当前位置过渡到目标
+    if (targetPose.transitionMode === 'direct') {
+      state.targetPupilScale = targetPose.pupil.scale;
+      
+      // 处理 overlay
+      if (targetPose.overlay) {
+        state.overlay.active = true;
+        state.overlay.id = targetPose.overlay;
+        state.overlay.phase = 'in';
+        state.overlay.timer = 0;
+        state.overlay.opacity = 0;
+      } else if (state.overlay.active) {
+        state.overlay.active = false;
+        state.overlay.phase = 'none';
+        state.overlay.opacity = 0;
+      }
+      
+      // 重置关键帧动画状态
+      state.eyelidAnim.keyframeIndex = 0;
+      state.eyelidAnim.keyframeTime = 0;
+      state.eyelidAnim.finished = false;
+      
+      // 直接过渡：当前 pose → 目标 pose
+      startTransition(state.current, emotionId, targetPose.duration);
+      state.current = emotionId;
+      notifyBlinkUI();
+      return;
+    }
+    
+    // 默认模式：先过渡回 idle，然后排队进入新 pose（两段式）
     state.pendingPose = emotionId;
     const currentPose = poses[state.current];
     const outDuration = currentPose ? currentPose.duration : DURATION.normal;
@@ -1326,13 +1475,6 @@ function drawDebugInfo() {
 }
 
 // ============ 交互 ============
-// 点击眨眼已禁用，改用 blinkPolicy 按钮
-// function mousePressed() {
-//   if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-//     triggerBlink();
-//   }
-// }
-
 function keyPressed() {
   switch (key) {
     case '1': setEmotion('idle'); break;
