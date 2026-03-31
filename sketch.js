@@ -91,6 +91,36 @@ const poses = {
     overlay: 'happy_L',
     duration: DURATION.fast
   },
+
+  happy2: {
+    left: {
+      upper: { x: 0, y: -240, rot: 0 },
+      lower: { x: 0, y: 120, rot: 0 }
+    },
+    right: {
+      upper: { x: 0, y: -240, rot: 0 },
+      lower: { x: 0, y: 120, rot: 0 }
+    },
+    pupil: {
+      scale: 0.9,
+      offset: { x: 0, y: 0 },
+      pattern: 'calm'
+    },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.fast,
+    pupilAnimation: {
+      type: 'keyframes',
+      loop: true,
+      keyframes: [
+        { offset_x: 0, offset_y: -18, duration_ms: 600 },
+        { offset_x: -22, offset_y: -12, duration_ms: 550 },
+        { offset_x: 22, offset_y: -12, duration_ms: 550 },
+        { offset_x: 0, offset_y: -10, duration_ms: 450 },
+        { offset_x: 0, offset_y: 0, duration_ms: 500 }
+      ]
+    }
+  },
   
   angry: {
     left: {
@@ -130,32 +160,6 @@ const poses = {
     duration: DURATION.slow
   },
 
-  sleepy: {
-    left: {
-      upper: { x: 0, y: -100, rot: 0 },
-      lower: { x: 0, y: 130, rot: 0 }
-    },
-    right: {
-      upper: { x: 0, y: -100, rot: 0 },
-      lower: { x: 0, y: 130, rot: 0 }
-    },
-    pupil: {
-      scale: 0.7,
-      offset: { x: 0, y: 15 },
-      pattern: null
-    },
-    gaze: GAZE.none,
-    // 眼皮循环动画（仅在 hold 阶段生效）
-    eyelidAnimation: {
-      upper: { range: [-100, 0], period: 5000 },
-      lower: { range: [130, 69], period: 4500 }
-    },
-    overlay: null,
-    duration: DURATION.slow,
-    holdDuration: 8000,    // hold 8 秒后自动进入下一状态
-    nextPose: 'sleep'      // 自动进入 sleep
-  },
-  
   adore: {
     left: {
       upper: { x: 0, y: -240, rot: 0 },
@@ -288,6 +292,15 @@ const poses = {
     duration: DURATION.slow
   },
 
+  proud: {
+    left: { upper: { x: 0, y: -150, rot: 0.2 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -150, rot: -0.2 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.8, offset: { x: 0, y: -15 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
   // ========== 惊吓 ==========
   scared: {
     left: { upper: { x: 0, y: -240, rot: -0.1 }, lower: { x: 0, y: 172, rot: 0 } },
@@ -299,13 +312,130 @@ const poses = {
   },
 
   // ========== 眨眼 ==========
-  wink: {
-    left: { upper: { x: 0, y: -100, rot: 0.3}, lower: { x: 0, y: 172, rot: 0 } },  // 左眼闭
-    right: { upper: { x: 0, y: -70, rot: -0.3 }, lower: { x: 0, y: 60, rot: -0.3 } },  // 右眼开
+  wink_left: {
+    left: { upper: { x: 0, y: -100, rot: 0.3 }, lower: { x: 0, y: 172, rot: 0 } },   // 左眼闭
+    right: { upper: { x: 0, y: -70, rot: -0.3 }, lower: { x: 0, y: 60, rot: -0.3 } }, // 右眼开
     pupil: { scale: 0.75, offset: { x: 0, y: 0 }, pattern: null },
     gaze: GAZE.none,
     overlay: null,
     duration: DURATION.normal 
+  },
+
+  wink_right: {
+    left: { upper: { x: 0, y: -70, rot: 0.3 }, lower: { x: 0, y: 60, rot: 0.3 } },   // 左眼开
+    right: { upper: { x: 0, y: -100, rot: -0.3 }, lower: { x: 0, y: 172, rot: 0 } }, // 右眼闭
+    pupil: { scale: 0.75, offset: { x: 0, y: 0 }, pattern: null },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal 
+  },
+
+  // ========== 看向 ==========
+  look_left: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -150, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 30, y: 0 }, pattern: null },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  look_right: {
+    left: { upper: { x: 0, y: -150, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: -30, y: 0 }, pattern: null },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  look_around: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 172, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal,
+    holdDuration: 5000,
+    pupilAnimation: {
+      type: 'sine_x',
+      amplitude: 28,
+      period_ms: 2000,
+      duration_ms: 5000
+    }
+  },
+
+  // ========== 触摸变体（摸哪边看哪边） ==========
+  curious_left: {
+    left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 100, rot: 0 } },
+    right: { upper: { x: -15, y: -150, rot: -0.4 }, lower: { x: 0, y: 100, rot: 0 } },
+    pupil: { scale: 0.8, offset: { x: 25, y: -15 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.fast
+  },
+
+  curious_right: {
+    left: { upper: { x: 15, y: -150, rot: 0.4 }, lower: { x: 0, y: 100, rot: 0 } },
+    right: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 100, rot: 0 } },
+    pupil: { scale: 0.8, offset: { x: -25, y: -15 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.fast
+  },
+
+  confused_left: {
+    left: { upper: { x: 0, y: -150, rot: -0.1 }, lower: { x: 0, y: 120, rot: 0 } },
+    right: { upper: { x: 0, y: -120, rot: 0.2 }, lower: { x: 0, y: 110, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 25, y: -5 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  confused_right: {
+    left: { upper: { x: 0, y: -120, rot: -0.2 }, lower: { x: 0, y: 110, rot: 0 } },
+    right: { upper: { x: 0, y: -150, rot: 0.1 }, lower: { x: 0, y: 120, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: -25, y: -5 }, pattern: 'neutral' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  angry_left: {
+    left: { upper: { x: 30, y: -140, rot: 0.35 }, lower: { x: 0, y: 100, rot: 0 } },
+    right: { upper: { x: -30, y: -140, rot: -0.35 }, lower: { x: 0, y: 100, rot: 0 } },
+    pupil: { scale: 0.6, offset: { x: 25, y: 0 }, pattern: 'anxious' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  angry_right: {
+    left: { upper: { x: 30, y: -140, rot: 0.35 }, lower: { x: 0, y: 100, rot: 0 } },
+    right: { upper: { x: -30, y: -140, rot: -0.35 }, lower: { x: 0, y: 100, rot: 0 } },
+    pupil: { scale: 0.6, offset: { x: -25, y: 0 }, pattern: 'anxious' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.normal
+  },
+
+  enjoy_left: {
+    left: { upper: { x: 0, y: -50, rot: 0.3 }, lower: { x: 0, y: 69, rot: 0.3 } },
+    right: { upper: { x: 0, y: -50, rot: -0.3 }, lower: { x: 0, y: 69, rot: -0.3 } },
+    pupil: { scale: 0.75, offset: { x: 25, y: 5 }, pattern: 'calm' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.slow
+  },
+
+  enjoy_right: {
+    left: { upper: { x: 0, y: -50, rot: 0.3 }, lower: { x: 0, y: 69, rot: 0.3 } },
+    right: { upper: { x: 0, y: -50, rot: -0.3 }, lower: { x: 0, y: 69, rot: -0.3 } },
+    pupil: { scale: 0.75, offset: { x: -25, y: 5 }, pattern: 'calm' },
+    gaze: GAZE.none,
+    overlay: null,
+    duration: DURATION.slow
   },
 
   // ========== 特殊表情（需特制图层，无眼皮参与） ==========
@@ -320,20 +450,28 @@ const poses = {
 
   // ========== 环顾 ==========
   // ========== 睡眠类 ==========
+  // ========== 睡眠（完整流程：眼皮开合循环 → 闭眼呼吸） ==========
   sleep: {
-    left: { upper: { x: 0, y: -50, rot: 0 }, lower: { x: 0, y: 69, rot: 0 } },
-    right: { upper: { x: 0, y: -50, rot: 0 }, lower: { x: 0, y: 69, rot: 0 } },
-    pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: null },
+    left: { upper: { x: 0, y: -100, rot: 0 }, lower: { x: 0, y: 130, rot: 0 } },
+    right: { upper: { x: 0, y: -100, rot: 0 }, lower: { x: 0, y: 130, rot: 0 } },
+    pupil: { scale: 0.7, offset: { x: 0, y: 15 }, pattern: null },
     gaze: GAZE.none,
-    eyelidAnimation: {
-      upper: { range: [-50, -40], period: 4000 },
-      lower: { range: [69, 60], period: 4000 }
-    },
     overlay: null,
     duration: DURATION.slow,
     holdDuration: null,
-    transitionMode: 'direct',
-    allowedFrom: ['sleepy']
+    eyelidAnimation: {
+      // 第一阶段：正弦波循环（眼皮开合挣扎）
+      upper: { range: [-100, 0], period: 5000 },
+      lower: { range: [130, 69], period: 4500 },
+      phaseDuration: 10000,   // 第一阶段循环 5 秒
+      settleDuration: 2000,   // 过渡到闭眼目标位（防跳变）
+      settleTarget: { upperY: -50, lowerY: 69 },
+      // 第二阶段：闭眼呼吸循环
+      afterLoop: {
+        upper: { range: [-50, -40], period: 4000 },
+        lower: { range: [69, 60], period: 4000 }
+      }
+    }
   },
 
   // ========== 醒来类 ==========
@@ -343,9 +481,9 @@ const poses = {
     pupil: { scale: 0.7, offset: { x: 0, y: 0 }, pattern: 'neutral' },
     gaze: GAZE.follow,
     overlay: null,
-    duration: 1200,
+    duration: 3000,
     transitionMode: 'direct',
-    allowedFrom: ['sleepy', 'sleep', 'daze'],
+    allowedFrom: ['sleep', 'daze'],
     autoReturnToIdle: true
   },
 
@@ -517,7 +655,19 @@ let state = {
   pattern: {
     time: 0,
     scaleOffset: 0,
-    posOffset: { x: 0, y: 0 }
+    posOffset: { x: 0, y: 0 },
+    poseOffset: { x: 0, y: 0 }
+  },
+
+  // 瞳孔动画状态（pose 内部动画）
+  pupilAnim: {
+    poseName: null,
+    time: 0,
+    keyframeIndex: 0,
+    keyframeTime: 0,
+    startX: 0,
+    startY: 0,
+    finished: false
   },
   
   // 眼皮动画状态
@@ -526,6 +676,9 @@ let state = {
     time: 0,
     upperY: -240,
     lowerY: 172,
+    phase2Started: false,
+    phase2StartUpperY: -240,
+    phase2StartLowerY: 172,
     // 关键帧动画状态
     keyframeIndex: 0,      // 当前关键帧索引
     keyframeTime: 0,       // 当前关键帧已过时间
@@ -799,6 +952,7 @@ function draw() {
   handleBlink();
   updateEyelidAnimation();   // 更新眼皮循环动画（如 sleepy）
   updatePattern();           // 更新呼吸感等 pattern
+  updatePupilAnimation();    // 更新 pose 内部瞳孔动画（happy2/look_around）
   updatePupilFromMouse();    // 使用 follow + offset + pattern
   updateOverlay();
   updateHoldPhase();         // 更新 hold 阶段计时
@@ -1122,6 +1276,10 @@ function updatePupilFromMouse() {
   // 加上 pattern 偏移
   baseX += state.pattern.posOffset.x;
   baseY += state.pattern.posOffset.y;
+
+  // 加上 pose 内部瞳孔动画偏移
+  baseX += state.pattern.poseOffset.x;
+  baseY += state.pattern.poseOffset.y;
   
   state.targetPupil.x = baseX;
   state.targetPupil.y = baseY;
@@ -1133,6 +1291,7 @@ function updateEyelidAnimation() {
   if (state.current === 'idle') {
     state.eyelidAnim.active = false;
     state.eyelidAnim.finished = false;
+    state.eyelidAnim.phase2Started = false;
     return;
   }
   
@@ -1140,6 +1299,7 @@ function updateEyelidAnimation() {
   if (!pose || !pose.eyelidAnimation) {
     state.eyelidAnim.active = false;
     state.eyelidAnim.finished = false;
+    state.eyelidAnim.phase2Started = false;
     return;
   }
   
@@ -1147,6 +1307,7 @@ function updateEyelidAnimation() {
   if (state.transition.active) {
     state.eyelidAnim.active = false;
     state.eyelidAnim.time = 0;
+    state.eyelidAnim.phase2Started = false;
     state.eyelidAnim.keyframeIndex = 0;
     state.eyelidAnim.keyframeTime = 0;
     state.eyelidAnim.finished = false;
@@ -1157,8 +1318,29 @@ function updateEyelidAnimation() {
   
   // 关键帧动画
   if (anim.type === 'keyframes') {
-    // 如果动画已完成且不循环，保持最终状态
+    // 如果动画已完成，检查是否有 afterLoop
     if (state.eyelidAnim.finished && !anim.loop) {
+      if (anim.afterLoop) {
+        // 关键帧完成后，切换到循环动画
+        state.eyelidAnim.active = true;
+        state.eyelidAnim.time += deltaTime;
+        
+        const afterAnim = anim.afterLoop;
+        if (afterAnim.upper) {
+          const phase = (state.eyelidAnim.time % afterAnim.upper.period) / afterAnim.upper.period;
+          const wave = (1 - cos(phase * TWO_PI)) / 2;
+          const [minY, maxY] = afterAnim.upper.range;
+          state.eyelidAnim.upperY = lerp(minY, maxY, wave);
+        }
+        if (afterAnim.lower) {
+          const phase = (state.eyelidAnim.time % afterAnim.lower.period) / afterAnim.lower.period;
+          const wave = (1 - cos(phase * TWO_PI)) / 2;
+          const [minY, maxY] = afterAnim.lower.range;
+          state.eyelidAnim.lowerY = lerp(minY, maxY, wave);
+        }
+        return;
+      }
+      // 没有 afterLoop，保持最终状态
       state.eyelidAnim.active = true;
       return;
     }
@@ -1197,31 +1379,84 @@ function updateEyelidAnimation() {
         } else {
           state.eyelidAnim.finished = true;
           state.eyelidAnim.keyframeIndex = keyframes.length - 1;
+          state.eyelidAnim.time = 0;  // 重置时间，为 afterLoop 准备
         }
       }
     }
     return;
   }
   
-  // 循环动画（原有逻辑）
+  // 循环动画
   state.eyelidAnim.active = true;
   state.eyelidAnim.time += deltaTime;
-  
-  // 上眼皮动画
-  if (anim.upper) {
-    const phase = (state.eyelidAnim.time % anim.upper.period) / anim.upper.period;
-    const wave = (1 - cos(phase * TWO_PI)) / 2;
-    const [minY, maxY] = anim.upper.range;
-    state.eyelidAnim.upperY = lerp(minY, maxY, wave);
+
+  // 计算循环动画某时刻的眼皮位置
+  const sampleLoop = (loopAnim, sampleTime) => {
+    let upperY = state.eyelidAnim.upperY;
+    let lowerY = state.eyelidAnim.lowerY;
+
+    if (loopAnim.upper) {
+      const phase = (sampleTime % loopAnim.upper.period) / loopAnim.upper.period;
+      const wave = (1 - cos(phase * TWO_PI)) / 2;
+      const [minY, maxY] = loopAnim.upper.range;
+      upperY = lerp(minY, maxY, wave);
+    }
+    if (loopAnim.lower) {
+      const phase = (sampleTime % loopAnim.lower.period) / loopAnim.lower.period;
+      const wave = (1 - cos(phase * TWO_PI)) / 2;
+      const [minY, maxY] = loopAnim.lower.range;
+      lowerY = lerp(minY, maxY, wave);
+    }
+    return { upperY, lowerY };
+  };
+
+  // 三段式：阶段1循环 -> 阶段2收敛 -> 阶段3 afterLoop循环
+  if (anim.phaseDuration && anim.afterLoop) {
+    const elapsed = state.eyelidAnim.time;
+
+    // 阶段1：困倦循环
+    if (elapsed < anim.phaseDuration) {
+      state.eyelidAnim.phase2Started = false;
+      const v = sampleLoop(anim, elapsed);
+      state.eyelidAnim.upperY = v.upperY;
+      state.eyelidAnim.lowerY = v.lowerY;
+      return;
+    }
+
+    // 阶段2：平滑收敛到闭眼目标位（防止跳变）
+    const settleDuration = anim.settleDuration || 0;
+    const afterElapsed = elapsed - anim.phaseDuration;
+    const settleTargetUpper = anim.settleTarget?.upperY ?? (anim.afterLoop.upper ? anim.afterLoop.upper.range[0] : state.eyelidAnim.upperY);
+    const settleTargetLower = anim.settleTarget?.lowerY ?? (anim.afterLoop.lower ? anim.afterLoop.lower.range[0] : state.eyelidAnim.lowerY);
+
+    if (settleDuration > 0 && afterElapsed < settleDuration) {
+      if (!state.eyelidAnim.phase2Started) {
+        // 从阶段1结束位置开始收敛，避免第一帧卡顿
+        const endPhase1 = sampleLoop(anim, anim.phaseDuration);
+        state.eyelidAnim.phase2StartUpperY = endPhase1.upperY;
+        state.eyelidAnim.phase2StartLowerY = endPhase1.lowerY;
+        state.eyelidAnim.phase2Started = true;
+      }
+      const t = afterElapsed / settleDuration;
+      const easedT = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      state.eyelidAnim.upperY = lerp(state.eyelidAnim.phase2StartUpperY, settleTargetUpper, easedT);
+      state.eyelidAnim.lowerY = lerp(state.eyelidAnim.phase2StartLowerY, settleTargetLower, easedT);
+      return;
+    }
+
+    // 阶段3：闭眼呼吸循环
+    const afterTime = Math.max(0, afterElapsed - settleDuration);
+    const v = sampleLoop(anim.afterLoop, afterTime);
+    state.eyelidAnim.upperY = v.upperY;
+    state.eyelidAnim.lowerY = v.lowerY;
+    return;
   }
-  
-  // 下眼皮动画
-  if (anim.lower) {
-    const phase = (state.eyelidAnim.time % anim.lower.period) / anim.lower.period;
-    const wave = (1 - cos(phase * TWO_PI)) / 2;
-    const [minY, maxY] = anim.lower.range;
-    state.eyelidAnim.lowerY = lerp(minY, maxY, wave);
-  }
+
+  // 普通循环动画
+  state.eyelidAnim.phase2Started = false;
+  const v = sampleLoop(anim, state.eyelidAnim.time);
+  state.eyelidAnim.upperY = v.upperY;
+  state.eyelidAnim.lowerY = v.lowerY;
 }
 
 // ============ Pattern 动画更新 ============
@@ -1247,6 +1482,96 @@ function updatePattern() {
   } else if (pattern.property === 'offset') {
     state.pattern.posOffset.x = wave * pattern.amplitude.x;
     state.pattern.posOffset.y = wave * pattern.amplitude.y;
+  }
+}
+
+// ============ 瞳孔动画更新（pose 内部） ============
+function updatePupilAnimation() {
+  const pose = poses[state.current];
+
+  // idle/无动画/过渡中：清空
+  if (state.current === 'idle' || !pose || !pose.pupilAnimation || state.transition.active) {
+    state.pattern.poseOffset.x = 0;
+    state.pattern.poseOffset.y = 0;
+    state.pupilAnim.poseName = null;
+    state.pupilAnim.time = 0;
+    state.pupilAnim.keyframeIndex = 0;
+    state.pupilAnim.keyframeTime = 0;
+    state.pupilAnim.startX = 0;
+    state.pupilAnim.startY = 0;
+    state.pupilAnim.finished = false;
+    return;
+  }
+
+  const anim = pose.pupilAnimation;
+
+  // 切换到新 pose 时重置
+  if (state.pupilAnim.poseName !== state.current) {
+    state.pupilAnim.poseName = state.current;
+    state.pupilAnim.time = 0;
+    state.pupilAnim.keyframeIndex = 0;
+    state.pupilAnim.keyframeTime = 0;
+    state.pupilAnim.startX = 0;
+    state.pupilAnim.startY = 0;
+    state.pupilAnim.finished = false;
+    state.pattern.poseOffset.x = 0;
+    state.pattern.poseOffset.y = 0;
+  }
+
+  state.pupilAnim.time += deltaTime;
+
+  // keyframes: happy2 的眼珠轨迹
+  if (anim.type === 'keyframes') {
+    const frames = anim.keyframes || [];
+    if (frames.length === 0) return;
+
+    if (state.pupilAnim.finished && !anim.loop) return;
+
+    const idx = Math.min(state.pupilAnim.keyframeIndex, frames.length - 1);
+    const currentKF = frames[idx];
+    const frameDuration = Math.max(currentKF.duration_ms || 1, 1);
+
+    if (state.pupilAnim.keyframeTime === 0) {
+      state.pupilAnim.startX = state.pattern.poseOffset.x;
+      state.pupilAnim.startY = state.pattern.poseOffset.y;
+    }
+
+    state.pupilAnim.keyframeTime += deltaTime;
+    const t = Math.min(state.pupilAnim.keyframeTime / frameDuration, 1);
+    const easedT = 1 - Math.pow(1 - t, 3); // easeOutCubic
+
+    const targetX = currentKF.offset_x || 0;
+    const targetY = currentKF.offset_y || 0;
+    state.pattern.poseOffset.x = lerp(state.pupilAnim.startX, targetX, easedT);
+    state.pattern.poseOffset.y = lerp(state.pupilAnim.startY, targetY, easedT);
+
+    if (t >= 1) {
+      state.pupilAnim.keyframeIndex++;
+      state.pupilAnim.keyframeTime = 0;
+      state.pupilAnim.startX = targetX;
+      state.pupilAnim.startY = targetY;
+
+      if (state.pupilAnim.keyframeIndex >= frames.length) {
+        if (anim.loop) {
+          state.pupilAnim.keyframeIndex = 0;
+        } else {
+          state.pupilAnim.keyframeIndex = frames.length - 1;
+          state.pupilAnim.finished = true;
+        }
+      }
+    }
+    return;
+  }
+
+  // sine_x: look_around 的左右环顾
+  if (anim.type === 'sine_x') {
+    const sampleTime = anim.duration_ms
+      ? Math.min(state.pupilAnim.time, anim.duration_ms)
+      : state.pupilAnim.time;
+    const period = Math.max(anim.period_ms || 1000, 1);
+    const phase = (sampleTime % period) / period;
+    state.pattern.poseOffset.x = sin(phase * TWO_PI) * (anim.amplitude || 0);
+    state.pattern.poseOffset.y = 0;
   }
 }
 
