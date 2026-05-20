@@ -1,0 +1,32 @@
+{
+  "default": {
+    "eyelid_upper": {
+      "left": "wht",
+      "right": "wht"
+    },
+    "eyelid_lower": {
+      "left": "wht",
+      "right": "wht"
+    }
+  },
+  "pink": {
+    "eyelid_upper": {
+      "left": "pk",
+      "right": "pk"
+    },
+    "eyelid_lower": {
+      "left": "pk",
+      "right": "pk"
+    }
+  },
+  "blue": {
+    "eyelid_upper": {
+      "left": "bl",
+      "right": "bl"
+    },
+    "eyelid_lower": {
+      "left": "bl",
+      "right": "bl"
+    }
+  }
+}

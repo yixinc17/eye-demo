@@ -226,6 +226,7 @@
       
       <!-- 喜爱类 -->
       <button class="btn-love" onclick="setEmotion('adore')">Adore</button>
+      <button class="btn-love" onclick="setEmotion('excited')">Excited</button>
       <button class="btn-love" onclick="setEmotion('expectant')">Expectant</button>
       <button class="btn-love" onclick="setEmotion('imprint')">Imprint</button>
       
@@ -299,6 +300,10 @@
         <input type="checkbox" id="param-mask" checked onchange="toggleMask(this.checked)">
         椭圆遮罩
       </label>
+      <label class="checkbox-label" style="margin-top: 8px;">
+        <input type="checkbox" id="param-global-follow" checked onchange="toggleGlobalEyeFollow(this.checked)">
+        全局眼睛跟随
+      </label>
       <div class="param-item" style="margin-top: 12px;">
         <label>眨眼策略 <span id="blink-status">(idle)</span></label>
         <div style="display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;">
@@ -316,6 +321,14 @@
           <button id="btn-pupil2" class="pupil-btn" onclick="switchPupil('pupil2')">眼珠 2</button>
         </div>
       </div>
+      <div class="param-item" style="margin-top: 12px;">
+        <label>眼皮样式</label>
+        <div style="display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap;">
+          <button id="btn-eyelid-wht" class="pupil-btn active" onclick="switchEyelid('wht')">White</button>
+          <button id="btn-eyelid-pk" class="pupil-btn" onclick="switchEyelid('pk')">Pink</button>
+          <button id="btn-eyelid-bl" class="pupil-btn" onclick="switchEyelid('bl')">Blue</button>
+        </div>
+      </div>
     </div>
   </div>
   
@@ -326,6 +339,14 @@
       console.log('toggleMask:', checked);
       if (window.setMaskEnabled) {
         window.setMaskEnabled(checked);
+      }
+    }
+
+    // 全局眼睛跟随开关
+    function toggleGlobalEyeFollow(checked) {
+      console.log('toggleGlobalEyeFollow:', checked);
+      if (window.setGlobalEyeFollow) {
+        window.setGlobalEyeFollow(checked);
       }
     }
     
@@ -372,6 +393,17 @@
       // 更新按钮状态
       document.getElementById('btn-pupil1').classList.toggle('active', type === 'pupil');
       document.getElementById('btn-pupil2').classList.toggle('active', type === 'pupil2');
+    }
+
+    // 切换眼皮样式
+    function switchEyelid(style) {
+      console.log('switchEyelid:', style);
+      if (window.setEyelidStyle) {
+        window.setEyelidStyle(style);
+      }
+      document.getElementById('btn-eyelid-wht').classList.toggle('active', style === 'wht');
+      document.getElementById('btn-eyelid-pk').classList.toggle('active', style === 'pk');
+      document.getElementById('btn-eyelid-bl').classList.toggle('active', style === 'bl');
     }
   </script>
 </body>

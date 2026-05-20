@@ -179,6 +179,25 @@ const poses = {
     duration: DURATION.fast
   },
 
+  excited: {
+    left: {
+      upper: { x: 0, y: -240, rot: 0 },
+      lower: { x: 0, y: 120, rot: 0 }
+    },
+    right: {
+      upper: { x: 0, y: -240, rot: 0 },
+      lower: { x: 0, y: 120, rot: 0 }
+    },
+    pupil: {
+      scale: 0.9,
+      offset: { x: 0, y: 0 },
+      pattern: 'excited'
+    },
+    gaze: GAZE.follow,
+    overlay: null,
+    duration: DURATION.fast
+  },
+
   // ========== 喜爱类 ==========
   expectant: {
     left: { upper: { x: 0, y: -240, rot: 0 }, lower: { x: 0, y: 100, rot: 0 } },
@@ -519,6 +538,11 @@ const patterns = {
     amplitude: 0.03,        // ±3% 中等
     period: 3000            // 3秒
   },
+  excited: {
+    property: 'scale',
+    amplitude: 0.045,       // 比 neutral 更强
+    period: 1200            // 更急促
+  },
   anxious: {
     property: 'scale',
     amplitude: 0.05,        // ±5% 大变化
@@ -689,6 +713,7 @@ let state = {
 };
 
 let followMouse = true;
+let globalEyeFollowEnabled = true;
 let manualPupil = { x: 0, y: 0 };
 let panelControlled = false;
 
@@ -850,6 +875,7 @@ function updateOverlay() {
 // ============ 预加载图片 ============
 // 眼珠类型（用于切换）
 let pupilType = 'pupil';  // 'pupil' 或 'pupil2'
+let eyelidStyle = 'wht';  // 'wht' | 'pk' | 'bl'
 
 function preload() {
   if (config.useImages) {
@@ -857,27 +883,27 @@ function preload() {
       console.warn('图片加载失败', err);
     };
     
-    // 左眼图层（独立素材）
-    layers.left.eyeball = loadImage('assets/left_eye/eyeball.png', null, onError);
-    layers.left.pupil = loadImage('assets/left_eye/pupil.png', null, onError);
-    layers.left.pupil2 = loadImage('assets/left_eye/pupil2.png', null, onError);
-    layers.left.highlight = loadImage('assets/left_eye/highlight.png', null, onError);
-    layers.left.eyelidUpper = loadImage('assets/left_eye/lidU_L.png', null, onError);
-    layers.left.eyelidLower = loadImage('assets/left_eye/lidD_L.png', null, onError);
-    layers.left.happyOverlay = loadImage('assets/left_eye/happyL.png', null, onError);
-    layers.left.imprintOverlay = loadImage('assets/left_eye/imprintL.png', null, onError);
-    layers.left.tsundereOverlay = loadImage('assets/left_eye/tsundereL.png', null, onError);
+    // 左眼图层（parts 目录：part-first）
+    layers.left.eyeball = loadImage('assets/parts/eyeball/eyeball.png', null, onError);
+    layers.left.pupil = loadImage('assets/parts/pupil/left/pupil.png', null, onError);
+    layers.left.pupil2 = loadImage('assets/parts/pupil/left/pupil2.png', null, onError);
+    layers.left.highlight = loadImage('assets/parts/highlight/highlight.png', null, onError);
+    layers.left.eyelidUpper = loadImage('assets/parts/eyelid_upper/left/wht.png', null, onError);
+    layers.left.eyelidLower = loadImage('assets/parts/eyelid_lower/left/wht.png', null, onError);
+    layers.left.happyOverlay = loadImage('assets/parts/overlay/left/happyL.png', null, onError);
+    layers.left.imprintOverlay = loadImage('assets/parts/overlay/left/imprintL.png', null, onError);
+    layers.left.tsundereOverlay = loadImage('assets/parts/overlay/left/tsundereL.png', null, onError);
 
-    // 右眼图层（独立素材，不再镜像！）
-    layers.right.eyeball = loadImage('assets/right_eye/eyeball.png', null, onError);
-    layers.right.pupil = loadImage('assets/right_eye/pupil.png', null, onError);
-    layers.right.pupil2 = loadImage('assets/right_eye/pupil2.png', null, onError);
-    layers.right.highlight = loadImage('assets/right_eye/highlight.png', null, onError);
-    layers.right.eyelidUpper = loadImage('assets/right_eye/lidU_R.png', null, onError);
-    layers.right.eyelidLower = loadImage('assets/right_eye/lidD_R.png', null, onError);
-    layers.right.happyOverlay = loadImage('assets/right_eye/happyR.png', null, onError);
-    layers.right.imprintOverlay = loadImage('assets/right_eye/imprintR.png', null, onError);
-    layers.right.tsundereOverlay = loadImage('assets/right_eye/tsundereR.png', null, onError);
+    // 右眼图层（parts 目录：part-first）
+    layers.right.eyeball = loadImage('assets/parts/eyeball/eyeball.png', null, onError);
+    layers.right.pupil = loadImage('assets/parts/pupil/right/pupil.png', null, onError);
+    layers.right.pupil2 = loadImage('assets/parts/pupil/right/pupil2.png', null, onError);
+    layers.right.highlight = loadImage('assets/parts/highlight/highlight.png', null, onError);
+    layers.right.eyelidUpper = loadImage('assets/parts/eyelid_upper/right/wht.png', null, onError);
+    layers.right.eyelidLower = loadImage('assets/parts/eyelid_lower/right/wht.png', null, onError);
+    layers.right.happyOverlay = loadImage('assets/parts/overlay/right/happyR.png', null, onError);
+    layers.right.imprintOverlay = loadImage('assets/parts/overlay/right/imprintR.png', null, onError);
+    layers.right.tsundereOverlay = loadImage('assets/parts/overlay/right/tsundereR.png', null, onError);
   }
 }
 
@@ -885,6 +911,34 @@ function preload() {
 function setPupilType(type) {
   pupilType = type;
   console.log('Pupil type:', type);
+}
+
+// 切换眼皮样式
+function setEyelidStyle(style) {
+  const allowed = ['wht', 'pk', 'bl'];
+  if (!allowed.includes(style)) {
+    console.warn('Unknown eyelid style:', style);
+    return;
+  }
+  if (eyelidStyle === style) return;
+  eyelidStyle = style;
+
+  const onError = (err) => console.warn('眼皮图片加载失败', err);
+  let loadedCount = 0;
+  const onLoaded = () => {
+    loadedCount++;
+    if (loadedCount >= 4) {
+      // 眼皮图片尺寸可能变化，重新计算关键位置
+      calculateEyelidPositions();
+    }
+  };
+
+  layers.left.eyelidUpper = loadImage(`assets/parts/eyelid_upper/left/${style}.png`, onLoaded, onError);
+  layers.left.eyelidLower = loadImage(`assets/parts/eyelid_lower/left/${style}.png`, onLoaded, onError);
+  layers.right.eyelidUpper = loadImage(`assets/parts/eyelid_upper/right/${style}.png`, onLoaded, onError);
+  layers.right.eyelidLower = loadImage(`assets/parts/eyelid_lower/right/${style}.png`, onLoaded, onError);
+
+  console.log('Eyelid style:', style);
 }
 
 // ============ 动态计算眼皮位置 ============
@@ -1253,7 +1307,7 @@ function updatePupilFromMouse() {
   let baseY = pupilConfig.offset.y;
   
   // 鼠标跟随（gaze != none 时）
-  const canFollow = followMouse && gaze !== GAZE.none;
+  const canFollow = globalEyeFollowEnabled && followMouse && gaze !== GAZE.none;
   
   if (canFollow) {
     let centerX = config.canvasWidth / 2;
@@ -1859,6 +1913,10 @@ function setFollowMouse(enabled) {
   followMouse = enabled;
 }
 
+function setGlobalEyeFollow(enabled) {
+  globalEyeFollowEnabled = enabled;
+}
+
 function resetToNeutral() {
   panelControlled = false;
   state.current = 'idle';
@@ -1937,6 +1995,7 @@ window.setEmotion = setEmotion;
 window.triggerBlink = triggerBlink;
 window.updateFromPanel = updateFromPanel;
 window.setFollowMouse = setFollowMouse;
+window.setGlobalEyeFollow = setGlobalEyeFollow;
 window.resetToNeutral = resetToNeutral;
 window.setPanelControlled = setPanelControlled;
 window.setMaskEnabled = setMaskEnabled;
@@ -1945,6 +2004,7 @@ window.setBlinkPolicy = setBlinkPolicy;
 window.setEyeOpen = setEyeOpen;
 window.modifyPose = modifyPose;
 window.setPupilType = setPupilType;
+window.setEyelidStyle = setEyelidStyle;
 // 导出数据结构供调试
 window.idle = idle;
 window.poses = poses;
